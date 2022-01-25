@@ -10,14 +10,23 @@ from django.contrib.auth.models import User
 import json
 from django.http import QueryDict
 from .serializers import UserSerializer
+import jwt
+from datetime import datetime, timedelta
+from django.conf import settings
 
 # Create your views here.
 
 ########### USER #############
+@api_view(['POST'])
 def login_view(request):
     if request.method == 'POST':
         # try to log the user in
-        form = AuthenticationForm(request, request.POST)
+        login_data = request.data
+        print("Login data", login_data)
+        dict = {'username': login_data['username'], 'password': login_data['password']}
+        query_dict = QueryDict('', mutable=True)
+        query_dict.update(dict)
+        form = AuthenticationForm(request,query_dict)
         if form.is_valid():
             u = form.cleaned_data['username']
             p = form.cleaned_data['password']
@@ -25,37 +34,28 @@ def login_view(request):
             if user is not None:
                 if user.is_active:
                     login(request, user) # log the user in by creating a session
-                    return redirect('/user/'+u)
-                else:
-                    print('The account has been disabled.')
-                    return redirect('http://localhost:3000/login')
-        else:
-            print('The username and/or password is incorrect.')
-            return redirect('http://localhost:3000/login')
-    # else: # it was a GET request so send the empty login form
-    #     form = AuthenticationForm()
-    #     return render(request, 'login.html', {'form': form})
+                    
+                    token=jwt.encode({'username': user.username, 'email': user.email, 'password': user.password,
+                            'exp': datetime.now() + timedelta(hours=24)}, 
+                            settings.SECRET_KEY, algorithm='HS256')
+                    user_token = {
+                        'username': user.username, 
+                        'email': user.email,
+                        'id': user.id, 
+                        'token': 'Bearer ' + str(token)
+                    }
+                    print(user_token)
+                    serializer = UserSerializer(user_token)
+                    return Response(serializer.data)
+                # else:
+                #     print('The account has been disabled.')
+                #     return redirect('http://localhost:3000/login')
+  
+
 
 def logout_view(request):
     logout(request)
     return redirect('/cats')
-
-
-# def signup_view(request):
-#     if request.method == 'POST':
-#         print('post info:', request.POST)
-   
-#         form = UserCreationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             login(request, user)
-#             # return redirect('/user/'+str(user))
-#             return redirect('http://localhost:3000/login')
-#         else:
-#             return HttpResponse('<h1>Try Again</h1>')
-#     else:
-#         form = UserCreationForm()
-#             return render(request, 'signup.html', {'form': form})
 
 @api_view(['POST'])
 def signup_view(request):
