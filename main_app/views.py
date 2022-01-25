@@ -13,6 +13,7 @@ from .serializers import UserSerializer
 import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
+from knox.models import AuthToken
 
 # Create your views here.
 
@@ -27,6 +28,7 @@ def login_view(request):
         query_dict = QueryDict('', mutable=True)
         query_dict.update(dict)
         form = AuthenticationForm(request,query_dict)
+       
         if form.is_valid():
             u = form.cleaned_data['username']
             p = form.cleaned_data['password']
@@ -35,18 +37,24 @@ def login_view(request):
                 if user.is_active:
                     login(request, user) # log the user in by creating a session
                     
-                    token=jwt.encode({'username': user.username, 'email': user.email, 'password': user.password,
-                            'exp': datetime.now() + timedelta(hours=24)}, 
+                    token=jwt.encode({'id': user.id, 'username': user.username, 'email': user.email, 'password': user.password,
+                            'exp': datetime.now() + timedelta(hours=1)}, 
                             settings.SECRET_KEY, algorithm='HS256')
-                    user_token = {
+                    print('token', token)
+                    user_info = {
+                        'userData':
+                        {
                         'username': user.username, 
                         'email': user.email,
                         'id': user.id, 
-                        'token': 'Bearer ' + str(token)
+                        },
+                        'token': 'Bearer ' + str(token),
+                        'success': True
                     }
-                    print(user_token)
-                    serializer = UserSerializer(user_token)
-                    return Response(serializer.data)
+                    print(user_info)
+                    data = json.dumps(user_info)
+                    # serializer = UserSerializer(user_token)
+                    return Response(data)
                 # else:
                 #     print('The account has been disabled.')
                 #     return redirect('http://localhost:3000/login')
