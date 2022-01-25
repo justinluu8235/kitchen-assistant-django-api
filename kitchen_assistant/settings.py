@@ -36,6 +36,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'recipes.apps.RecipesConfig',
     'main_app.apps.MainAppConfig',
+    'menu.apps.MenuConfig',
+    'shoppinglist.apps.ShoppinglistConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -119,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'US/Pacific'
 
 USE_I18N = True
 
