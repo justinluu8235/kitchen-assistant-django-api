@@ -23,12 +23,12 @@ class Recipe(models.Model):
 
     
     def __str__(self):
-        return self.recipe_name + 'in category ' + self.recipe_category
+        return str(self.recipe_name) + 'in category ' + str(self.recipe_category)
 
 class RecipeStep(models.Model):
     step_number = models.IntegerField(default=1)
-    instructions = models.CharField(max_length=200, default='N/A')
-    image = models.CharField(max_length=200)
+    instructions = models.CharField(max_length=500, default='N/A')
+    image = models.CharField(max_length=200, null=True)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
 class Ingredient(models.Model):

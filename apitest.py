@@ -68,3 +68,78 @@ print(response)
 '''
 [{'number': 1, 'step': 'In a big pot (a cocotte if you have one), put in the rice and water. Bring it to a boil.When it comes to a boiling point, give it a good stir. Put in some salt and the sliced ginger. Then, put the lid on. Turn the heat to low.Check and stir from time to time. It takes probably 20-30 minutes for the grains to start breaking. If you use Jasmine rice, it will be quicker. Long grain rice like basmati takes slightly longer.', 'ingredients': [{'id': 10220444, 'name': 'long grain rice', 'localizedName': 'long grain rice', 'image': 'rice-white-long-grain-or-basmatii-cooked.jpg'}, {'id': 10120444, 'name': 'jasmine rice', 'localizedName': 'jasmine rice', 'image': 'rice-jasmine-cooked.jpg'}, {'id': 11216, 'name': 'ginger', 'localizedName': 'ginger', 'image': 'ginger.png'}, {'id': 0, 'name': 'grains', 'localizedName': 'grains', 'image': ''}, {'id': 14412, 'name': 'water', 'localizedName': 'water', 'image': 'water.png'}, {'id': 20444, 'name': 'rice', 'localizedName': 'rice', 'image': 'uncooked-white-rice.png'}, {'id': 2047, 'name': 'salt', 'localizedName': 'salt', 'image': 'salt.jpg'}], 'equipment': [{'id': 404752, 'name': 'pot', 'localizedName': 'pot', 'image': 'stock-pot.jpg'}], 'length': {'number': 30, 'unit': 'minutes'}}, {'number': 2, 'step': 'Let it cook for about 1.5-2 hours. Remember to stir and check the consistency. If it becomes too thick, add some water. I usually tend not not make it too runny. The consistency that I always look for is like something like the consistency of pancake batter.Once it has been cooked under low heat for about 2 hours with desired consistency achieved, stir in the cod/haddock fillet that has been cut into cubes.', 'ingredients': [{'id': 15033, 'name': 'haddock', 'localizedName': 'haddock', 'image': 'catfish.jpg'}, {'id': 14412, 'name': 'water', 'localizedName': 'water', 'image': 'water.png'}, {'id': 15015, 'name': 'cod', 'localizedName': 'cod', 'image': 'cod-fillet.jpg'}], 'equipment': [], 'length': {'number': 240, 'unit': 'minutes'}}, {'number': 3, 'step': 'Put the lid back on to let the fish cooked for about 15 minutes.', 'ingredients': [{'id': 10115261, 'name': 'fish', 'localizedName': 'fish', 'image': 'fish-fillet.jpg'}], 'equipment': [], 'length': {'number': 15, 'unit': 'minutes'}}, {'number': 4, 'step': 'Serve congee in bowls, sprinkles with some spring onions, fried gingers and onions. You can adjust the seasoning by adding soya sauce if you wish (I always like this).', 'ingredients': [{'id': 11291, 'name': 'spring onions', 'localizedName': 'spring onions', 'image': 'spring-onions.jpg'}, {'id': 16124, 'name': 'soy sauce', 'localizedName': 'soy sauce', 'image': 'soy-sauce.jpg'}, {'id': 1042027, 'name': 'seasoning', 'localizedName': 'seasoning', 'image': 'seasoning.png'}, {'id': 93645, 'name': 'sprinkles', 'localizedName': 'sprinkles', 'image': 'colorful-sprinkles.jpg'}, {'id': 11282, 'name': 'onion', 'localizedName': 'onion', 'image': 'brown-onion.png'}], 'equipment': [{'id': 404783, 'name': 'bowl', 'localizedName': 'bowl', 'image': 'bowl.jpg'}]}, {'number': 5, 'step': 'Drizzle some sesame oil and a few dash of white pepper (to give a real kick to this dish!)', 'ingredients': [{'id': 2032, 'name': 'white pepper', 'localizedName': 'white pepper', 'image': 'white-pepper.png'}, {'id': 4058, 'name': 'sesame oil', 'localizedName': 'sesame oil', 'image': 'sesame-oil.png'}], 'equipment': []}]
 '''
+
+
+
+
+'''
+{recipe_title: 'Fish Pie With Fresh and Smoked Salmon', recipe_image: 'https://spoonacular.com/recipeImages/642977-556x370.jpg', ingredient_list: Array(18), instructions_list: Array(14)}
+ingredient_list: Array(18)
+0: {ingredient_name: 'bay leaf', ingredient_quant: 1, ingredient_unit: ''}
+1: {ingredient_name: 'black peppercorns', ingredient_quant: 0.5, ingredient_unit: 'teaspoon'}
+2: {ingredient_name: 'butter', ingredient_quant: 1, ingredient_unit: 'tablespoon'}
+3: {ingredient_name: 'chicken stock', ingredient_quant: 1, ingredient_unit: 'cup'}
+4: {ingredient_name: 'cornstarch', ingredient_quant: 2, ingredient_unit: 'teaspoons'}
+5: {ingredient_name: 'dried chives', ingredient_quant: 1, ingredient_unit: 'teaspoon'}
+6: {ingredient_name: 'dried tarragon', ingredient_quant: 1, ingredient_unit: 'teaspoon'}
+7: {ingredient_name: 'greek olives', ingredient_quant: 0.5, ingredient_unit: 'cup'}
+8: {ingredient_name: 'horseradish', ingredient_quant: 1, ingredient_unit: 'tablespoon'}
+9: {ingredient_name: 'lemon juice', ingredient_quant: 1, ingredient_unit: 'teaspoon'}
+10: {ingredient_name: 'milk', ingredient_quant: 3, ingredient_unit: 'tablespoons'}
+11: {ingredient_name: 'olive oil', ingredient_quant: 1, ingredient_unit: 'tablespoon'}
+12: {ingredient_name: 'onion', ingredient_quant: 1, ingredient_unit: ''}
+13: {ingredient_name: 'potatoes', ingredient_quant: 2, ingredient_unit: 'medium'}
+14: {ingredient_name: 'salmon', ingredient_quant: 4, ingredient_unit: 'ounces'}
+15: {ingredient_name: 'salmon', ingredient_quant: 8, ingredient_unit: 'ounces'}
+16: {ingredient_name: 'savoy cabbage', ingredient_quant: 8, ingredient_unit: 'ounces'}
+17: {ingredient_name: 'white wine', ingredient_quant: 0.5, ingredient_unit: 'cup'}
+length: 18
+[[Prototype]]: Array(0)
+instructions_list: Array(14)
+0: {step_number: 1, instruction: 'Peel potatoes and cut into chunks'}
+1: {step_number: 2, instruction: 'Cook in boiling, salted water until tender, app. 15 minutes'}
+2: {step_number: 3, instruction: 'Drain potatoes, add butter, horseradish and 2 tbs … potatoes, mash, adding a bit more milk if needed'}
+3: {step_number: 4, instruction: 'Put fresh salmon in a medium skillet, add water to…It should be opaque and flake easily with a fork.'}'''
+
+
+
+'''
+{
+    "fridge": [
+        {
+            "id": 1,
+            "item_name": "milk",
+            "in_stock": false,
+            "pantry_category": "fridge",
+            "user": 18
+        },
+        [
+            {
+                "id": 2,
+                "item_name": "milk",
+                "in_stock": false,
+                "pantry_category": "fridge",
+                "user": 18
+            }
+        ]
+    ],
+    "spices": [
+        {
+            "id": 3,
+            "item_name": "thyme",
+            "in_stock": false,
+            "pantry_category": "spices",
+            "user": 18
+        },
+        [
+            {
+                "id": 4,
+                "item_name": "pepper",
+                "in_stock": false,
+                "pantry_category": "spices",
+                "user": 18
+            }
+        ]
+    ]
+}
+'''

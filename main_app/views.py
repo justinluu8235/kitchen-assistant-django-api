@@ -38,9 +38,10 @@ def login_view(request):
                     login(request, user) # log the user in by creating a session
                     
                     token=jwt.encode({'id': user.id, 'username': user.username, 'email': user.email, 'password': user.password,
-                            'exp': datetime.now() + timedelta(hours=1)}, 
+                            'exp': datetime.now() + timedelta(hours=9)}, 
                             settings.SECRET_KEY, algorithm='HS256')
                     print('token', token)
+                    print('exp', datetime.now() + timedelta(hours=5))
                     user_info = {
                         'userData':
                         {
@@ -60,10 +61,11 @@ def login_view(request):
                 #     return redirect('http://localhost:3000/login')
   
 
-
+@api_view(['GET'])
 def logout_view(request):
+    print('logout request', request)
     logout(request)
-    return redirect('/cats')
+    return Response('logged out')
 
 @api_view(['POST'])
 def signup_view(request):
@@ -87,8 +89,8 @@ def signup_view(request):
         return Response("try again")
 
 
-@login_required
-def profile(request, username):
-    user = User.objects.get(username=username)
-    cats = Cat.objects.filter(user=user)
-    return render(request, 'profile.html', {'username': username,'cats': cats})
+# @login_required
+# def profile(request, username):
+#     user = User.objects.get(username=username)
+#     # cats = Cat.objects.filter(user=user)
+#     # return render(request, 'profile.html', {'username': username,'cats': cats})
