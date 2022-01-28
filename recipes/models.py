@@ -27,7 +27,7 @@ class Recipe(models.Model):
 
 class RecipeStep(models.Model):
     step_number = models.IntegerField(default=1)
-    instructions = models.CharField(max_length=500, default='N/A')
+    instructions = models.CharField(max_length=1000, default='N/A')
     image = models.CharField(max_length=200, null=True)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 

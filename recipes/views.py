@@ -1,7 +1,4 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.views import generic
-from django.utils.decorators import method_decorator
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
@@ -135,6 +132,7 @@ def recipe_show(request, id):
 
 @api_view(['POST'])
 def recipe_new(request):
+    print('requestdata', request.data)
     user_id = request.data['user_id']
     recipe_name = request.data['recipe_name']
     recipe_category = request.data['recipe_category']
@@ -150,8 +148,9 @@ def recipe_new(request):
     user = User.objects.get(pk=user_id)
     print("user:", user)
     
-    recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category, user=user)
+    recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category)
     print('recipe category', recipe_category)
+    recipe_category[0].user = user
     recipe_category[0].save()
 
     new_recipe = Recipe.objects.create(recipe_name=recipe_name, user = user, recipe_category=recipe_category[0], image=recipe_image )
@@ -160,13 +159,13 @@ def recipe_new(request):
 
     for instructions in instructions_list:
         recipe_step = new_recipe.recipestep_set.create(step_number=instructions['step_number'], 
-                        instructions=instructions['instruction'], image=None, recipe=new_recipe)
+                        instructions=instructions['instructions'], image=None, recipe=new_recipe)
         print(recipe_step)
         recipe_step.save()
     
     for ingredients in ingredients_list:
         ingredient = new_recipe.ingredient_set.create(ingredient_name=ingredients['ingredient_name'], 
-                        ingredient_quantity=ingredients['ingredient_quantity'], quantity_unit=ingredients['ingredient_unit'], recipe=new_recipe)
+                        ingredient_quantity=ingredients['ingredient_quantity'], quantity_unit=ingredients['quantity_unit'], recipe=new_recipe)
         print(ingredient)
         ingredient.save()
 

@@ -142,4 +142,10 @@ instructions_list: Array(14)
         ]
     ]
 }
+
+pantry_category: {id: 2, category_name: 'spices', user: 18}
+pantry_item: {id: 18, item_name: 'salt', in_stock: false, pantry_category: 'spices', user: 18}
+[[Prototype]]: Object
+
+
 '''
