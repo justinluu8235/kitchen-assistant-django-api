@@ -20,6 +20,7 @@ class Recipe(models.Model):
     recipe_category = models.ForeignKey(RecipeCategory, on_delete=models.SET_NULL,  
                                             null=True)
     image = models.CharField(max_length=200, null=True)
+    image_upload = models.ImageField(max_length=5000, upload_to='images/', blank=True, null=True)
 
     
     def __str__(self):
@@ -30,6 +31,8 @@ class RecipeStep(models.Model):
     instructions = models.CharField(max_length=1000, default='N/A')
     image = models.CharField(max_length=200, null=True)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    
+
 
 class Ingredient(models.Model):
     ingredient_name = models.CharField(max_length=100, default='N/A')

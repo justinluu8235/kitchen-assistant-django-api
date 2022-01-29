@@ -19,5 +19,7 @@ urlpatterns = [
     path('userFriends/search', views.userfriend_search, name="userfriend-search"),
     path('userFriends/add', views.userfriend_add, name="userfriend-add"),
     path('userFriends/accept', views.userfriend_accept, name="userfriend-accept"),
+    path('userFriends/delete', views.userfriend_unfriend, name="userfriend-delete"),
+
 
 ]

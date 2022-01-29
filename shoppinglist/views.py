@@ -69,6 +69,14 @@ def pantry_edit(request, id):
     pantry_item = PantryItem.objects.get(id=id)
     pantry_item.in_stock = not pantry_item.in_stock
     pantry_item.save()
+
+    if pantry_item.in_stock == False:
+        shopping_item = ShoppingListItem.objects.create(item_name=pantry_item.item_name, user = pantry_item.user,
+                                            ingredient_quantity=1, quantity_unit="pantry unit")
+        shopping_item.save()
+    
+
+
     return Response("Item successfully updated")
 
 @api_view(['DELETE'])

@@ -90,14 +90,14 @@ def parse_ingredients(ingredient):
     parsed_ingredient = {
             'ingredient_name': ingredient['name'],
             'ingredient_quantity': ingredient["amount"],
-            'ingredient_unit': ingredient['unit']
+            'quantity_unit': ingredient['unit']
         }
     return parsed_ingredient
 
 def parse_instructions(instructions):
     parsed_instructions = {
             'step_number': instructions['number'],
-            'instruction': instructions["step"],
+            'instructions': instructions["step"],
         }
     return parsed_instructions
 
@@ -138,6 +138,7 @@ def recipe_new(request):
     recipe_category = request.data['recipe_category']
     instructions_list = request.data['instructions_list']
     ingredients_list = request.data['ingredients_list']
+    # image_upload = request.data['upload_image']
     recipe_image=None
     if 'recipe_image' in request.data:
         recipe_image = request.data['recipe_image']
@@ -153,8 +154,9 @@ def recipe_new(request):
     recipe_category[0].user = user
     recipe_category[0].save()
 
-    new_recipe = Recipe.objects.create(recipe_name=recipe_name, user = user, recipe_category=recipe_category[0], image=recipe_image )
+    new_recipe = Recipe.objects.create(recipe_name=recipe_name, user = user, recipe_category=recipe_category[0], image=recipe_image)
     print('recipe created', new_recipe)
+    # new_recipe.image_upload = image_upload
     new_recipe.save()
 
     for instructions in instructions_list:
@@ -185,6 +187,13 @@ def recipe_new(request):
     # data=json.dumps(obj)
     return Response(obj)
     
+@api_view(['POST'])
+def recipe_add_image(request):
+    print('request',request.POST )
+    recipe_serializer = RecipeSerializer(request.data)
+    print("SERIALIZER DATA " , recipe_serializer.image)
+    return Response('hello')
+
 
 @api_view(['POST'])
 def recipe_edit(request, id):
@@ -202,7 +211,7 @@ def recipe_edit(request, id):
 
     recipe = Recipe.objects.get(pk=id)
 
-    recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category, user=user)
+    recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category)
     print('recipe category', recipe_category)
     recipe_category[0].save()
     

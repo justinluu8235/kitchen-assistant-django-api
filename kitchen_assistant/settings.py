@@ -48,7 +48,10 @@ INSTALLED_APPS = [
 
     'knox',
     'rest_framework', 
-    'corsheaders'
+    'corsheaders', 
+    'cloudinary',
+
+    
 ]
 
 MIDDLEWARE = [
@@ -151,7 +154,12 @@ CORS_ALLOWED_ORIGINS = [
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
-
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': "djtd4wqoc",
+    'API_KEY': "862418491127931",
+    'API_SECRET': 'Pe8InGzsMalXgKfd_F_4ZY-Cpoo',
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',)
 # }
