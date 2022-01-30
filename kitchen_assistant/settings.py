@@ -163,3 +163,5 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',)
 # }
+MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
+MEDIA__URL = '/images/'

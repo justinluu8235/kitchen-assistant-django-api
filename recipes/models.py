@@ -3,9 +3,15 @@ import datetime
 from django.utils import timezone 
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+
+
 
 
 # Create your models here.
+
+def upload_to(instance, filename):
+    return 'recipes/{filename}'.format(filename=filename)
 
 class RecipeCategory(models.Model):
     category_name = models.CharField(max_length=50, unique=True, default="other")
@@ -19,8 +25,8 @@ class Recipe(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     recipe_category = models.ForeignKey(RecipeCategory, on_delete=models.SET_NULL,  
                                             null=True)
-    image = models.CharField(max_length=200, null=True)
-    image_upload = models.ImageField(max_length=5000, upload_to='images/', blank=True, null=True)
+    image = models.ImageField(_("Image"),max_length=200,  upload_to=upload_to, blank=True, null=True)
+
 
     
     def __str__(self):

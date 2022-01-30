@@ -22,7 +22,9 @@ def menu_index(request, id):
         recipeId = serializer.data[i]['recipe']
         recipe = Recipe.objects.get(pk=recipeId)
         serializer.data[i]['recipe_name'] = recipe.recipe_name
-        serializer.data[i]['image'] = recipe.image
+        print("recipe name", recipe.recipe_name)
+        print("recipe image", recipe.image)
+        serializer.data[i]['image'] = str(recipe.image)
         if serializer.data[i]['cook_date'] in by_date:
             cook_date = serializer.data[i]['cook_date']
             by_date[cook_date].append(serializer.data[i])
