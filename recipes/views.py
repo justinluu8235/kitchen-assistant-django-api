@@ -10,6 +10,11 @@ import requests
 from dotenv import load_dotenv
 import os
 from django.shortcuts import redirect
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.views import APIView
+
+
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
@@ -128,17 +133,87 @@ def recipe_show(request, id):
     return Response(obj)
 
 
+class RecipeCreate(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    def post(self, request, format=None):
+
+        print('requestdata', request.data)
+
+        serializer = RecipeSerializer(data=request.data)
+        if(serializer.is_valid()):
+            serializer.save()
+            print(serializer.data)
+
+
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['POST'])
-def recipe_new(request):
-    print('requestdata', request.data)
+def recipe_new(request, format=None):
+    user_id = request.data['user_id']
+    recipe_id = request.data['recipe_id']
+    recipe_category = request.data['recipe_category']
+    instructions_list = request.data['instructions_list']
+    ingredients_list = request.data['ingredients_list']
+
+    user = User.objects.get(pk=user_id)
+    print("user:", user)
+    
+    recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category)
+    print('recipe category', recipe_category)
+    recipe_category[0].user = user
+    recipe_category[0].save()
+
+    recipe = Recipe.objects.get(pk=recipe_id)
+    recipe.recipe_category = recipe_category[0]
+    if(not recipe.image == None or not recipe.image == '' ):
+        recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image) 
+    
+    recipe.user = user
+    recipe.save()
+
+    for instructions in instructions_list:
+        recipe_step = recipe.recipestep_set.create(step_number=instructions['step_number'], 
+                        instructions=instructions['instructions'], image=None, recipe=recipe)
+        print(recipe_step)
+        recipe_step.save()
+    
+    for ingredients in ingredients_list:
+        ingredient = recipe.ingredient_set.create(ingredient_name=ingredients['ingredient_name'], 
+                        ingredient_quantity=ingredients['ingredient_quantity'], quantity_unit=ingredients['quantity_unit'], recipe=recipe)
+        print(ingredient)
+        ingredient.save()
+
+
+
+    recipe_serializer = RecipeSerializer(recipe , many=False)
+    recipe_category_serializer = RecipeCategorySerializer(recipe_category[0], many=False)
+    instructions_serializer = RecipeStepSerializer(RecipeStep.objects.filter(recipe=recipe), many=True)
+    ingredients_serializer = IngredientSerializer(Ingredient.objects.filter(recipe=recipe), many=True)
+    obj={
+        'recipe': recipe_serializer.data,
+        'category': recipe_category_serializer.data,
+        'instructions': instructions_serializer.data,
+        'ingredients': ingredients_serializer.data,
+    }
+    # print(obj)
+    # data=json.dumps(obj)
+    return Response(obj)
+
+
+
+@api_view(['POST'])
+def recipe_search_new(request):
     user_id = request.data['user_id']
     recipe_name = request.data['recipe_name']
     recipe_category = request.data['recipe_category']
     instructions_list = request.data['instructions_list']
     ingredients_list = request.data['ingredients_list']
-    # image_upload = request.data['upload_image']
+
     recipe_image=None
     if 'recipe_image' in request.data:
         recipe_image = request.data['recipe_image']
@@ -156,7 +231,6 @@ def recipe_new(request):
 
     new_recipe = Recipe.objects.create(recipe_name=recipe_name, user = user, recipe_category=recipe_category[0], image=recipe_image)
     print('recipe created', new_recipe)
-    # new_recipe.image_upload = image_upload
     new_recipe.save()
 
     for instructions in instructions_list:
@@ -187,12 +261,27 @@ def recipe_new(request):
     # data=json.dumps(obj)
     return Response(obj)
     
-@api_view(['POST'])
-def recipe_add_image(request):
-    print('request',request.POST )
-    recipe_serializer = RecipeSerializer(request.data)
-    print("SERIALIZER DATA " , recipe_serializer.image)
-    return Response('hello')
+
+
+
+class RecipeEdit(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    def post(self, request, format=None):
+
+        print('requestdata', request.data)
+
+        recipe_id = request.data['id']
+        image_file = request.data['image']
+        print('image file', image_file)
+        recipe = Recipe.objects.get(pk=recipe_id)
+        print('image before', recipe.image)
+        recipe.image = image_file
+        recipe.save()
+        print('image after', recipe.image)
+        serializer = RecipeSerializer(recipe, many=False)
+
+        print('serializer data', serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
