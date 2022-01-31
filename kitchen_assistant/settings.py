@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-16&^=_e!f_%&r4!ozs+2@g)e35*g&4s-kj#0xvvf1&-hcwjv98
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
@@ -99,7 +99,11 @@ WSGI_APPLICATION = 'kitchen_assistant.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'django_kitchen_assistant',
+        'NAME': 'd4n8flesb5erft',
+        'HOST': 'ec2-3-232-22-121.compute-1.amazonaws.com',
+        'PORT': 5432,
+        'USER': 'trkgnstfzdbamp',
+        'PASSWORD': '7979cfe0bff8f752716209422b5c092f98544057212dedfe4a8f9238313d25c2',
     }
 }
 
