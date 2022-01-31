@@ -18,7 +18,7 @@ API_KEY = os.getenv("API_KEY")
 CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
 CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
-
+FRONTEND_URL= os.getenv("FRONTEND_URL")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -156,12 +156,12 @@ LOGIN_REDIRECT_URL = '/recipes'
 
 CORS_ALLOWED_ORIGINS = [
 
-    "http://localhost:3000",
+    FRONTEND_URL,
     "http://localhost:8000",
 
 ]
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': CLOUDINARY_NAME,
