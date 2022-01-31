@@ -1,0 +1,1 @@
+web: gunicorn kitchen_assistant.wsgi

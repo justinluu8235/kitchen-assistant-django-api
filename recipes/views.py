@@ -33,15 +33,11 @@ def recipe_index(request, id):
 @api_view(['POST'])
 def search_recipe(request):
     search_query = request.data['searchVal']
-    # print('query:', search_query)
-    # print('API_KEY:', API_KEY)
-    queryResultsQuantity = 5
+    queryResultsQuantity = 10
     url = 'https://api.spoonacular.com/recipes/complexSearch?query={query}&apiKey={API_KEY}&number={queryResultsQuantity}'
     url = url.format(query=search_query, API_KEY=API_KEY, queryResultsQuantity=queryResultsQuantity )
     response = requests.get(url)
     response = response.json()['results']
-    print("API Results", response)
-    #parse API data
     recipeInfoArr = [None] * len(response)
     for i in range(len(response)):
         recipeInfoArr[i] = {
@@ -52,7 +48,6 @@ def search_recipe(request):
     obj={
         'search_results': recipeInfoArr
     }
-    # print('Parsed Data', obj)
     data=json.dumps(obj)
     return Response(data)
 
