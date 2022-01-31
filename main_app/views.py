@@ -216,9 +216,12 @@ def userfriend_accept(request):
     user_friend.request_pending = False
     user_friend.save()
 
-    user_friend = UserFriend.objects.create(user=receiver, friend_name=requestor.username, 
-                                                friend_id=requester_id, currently_friends=True, request_pending=False )
-    user_friend_serializer = UserFriendSerializer(user_friend)
+    user_friend = UserFriend.objects.get_or_create(user=receiver, friend_name=requestor.username, 
+                                                friend_id=requester_id )
+    user_friend[0].currently_friends=True
+    user_friend[0].equest_pending=False                                            
+    user_friend[0].save()
+    user_friend_serializer = UserFriendSerializer(user_friend[0])
     obj={
         'friend_status': user_friend_serializer.data
         }

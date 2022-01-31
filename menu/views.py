@@ -24,6 +24,7 @@ def menu_index(request, id):
         serializer.data[i]['recipe_name'] = recipe.recipe_name
         print("recipe name", recipe.recipe_name)
         print("recipe image", recipe.image)
+        print('weekday', type(serializer.data[i]['cook_date']))
         serializer.data[i]['image'] = str(recipe.image)
         if serializer.data[i]['cook_date'] in by_date:
             cook_date = serializer.data[i]['cook_date']
