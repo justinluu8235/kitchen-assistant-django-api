@@ -188,14 +188,14 @@ def recipe_new(request, format=None):
     
     for ingredients in ingredients_list:
         print('ingredient unit before parse', ingredients['quantity_unit'])
-        parsed_ingredient_name = ingredients['ingredient_name'].lower()
-        parsed_quantity_unit = ingredients['quantity_unit'].lower()
-        if(parsed_quantity_unit[-1] == 's'):
+        parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
+        parsed_quantity_unit = ingredients['quantity_unit'].lower().strip()
+        if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
             parsed_quantity_unit = parsed_quantity_unit[:-1]
         print('ingredient unit afetr parse', parsed_quantity_unit)
         print(type(int(ingredients['ingredient_quantity'])))
         ingredient = recipe.ingredient_set.create(ingredient_name=parsed_ingredient_name, 
-                        ingredient_quantity=str(round(int(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
+                        ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
         print(ingredient)
         ingredient.save()
 
@@ -252,13 +252,13 @@ def recipe_search_new(request):
     
     for ingredients in ingredients_list:
         print('ingredient unit before parse', ingredients['quantity_unit'])
-        parsed_ingredient_name = ingredients['ingredient_name'].lower()
-        parsed_quantity_unit = ingredients['quantity_unit'].lower()
+        parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
+        parsed_quantity_unit = ingredients['quantity_unit'].lower().strip()
         if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
             parsed_quantity_unit = parsed_quantity_unit[:-1]
         print('ingredient unit afetr parse', parsed_quantity_unit)
         ingredient = new_recipe.ingredient_set.create(ingredient_name=parsed_ingredient_name, 
-                        ingredient_quantity=round(ingredients['ingredient_quantity'],2), quantity_unit=parsed_quantity_unit, recipe=new_recipe)
+                        ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=new_recipe)
         print(ingredient)
         ingredient.save()
 
@@ -293,6 +293,10 @@ class RecipeEdit(APIView):
         recipe = Recipe.objects.get(pk=recipe_id)
         print('image before', recipe.image)
         recipe.image = image_file
+   
+        recipe.save()
+        print('after save', recipe.image)
+        recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image) 
         recipe.save()
         print('image after', recipe.image)
         serializer = RecipeSerializer(recipe, many=False)
@@ -316,7 +320,11 @@ def recipe_edit(request, id):
     print("user:", user)
 
     recipe = Recipe.objects.get(pk=id)
-
+    print('recipe image', recipe.image)
+    if( recipe.image != None and str(recipe.image) != '' ):
+        
+        recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image) 
+        print('after concat', recipe.image)
     recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category)
     print('recipe category', recipe_category)
     recipe_category[0].save()
@@ -325,7 +333,7 @@ def recipe_edit(request, id):
     recipe.save()
 
     print('update recipe', recipe)
-
+    print('after update recipe', recipe.image)
     recipe.recipestep_set.all().delete()
     for instructions in instructions_list:
         recipe_step = recipe.recipestep_set.create(step_number=instructions['step_number'], 
@@ -335,13 +343,13 @@ def recipe_edit(request, id):
     recipe.ingredient_set.all().delete()
     for ingredients in ingredients_list:
         print('ingredient unit before parse', ingredients['quantity_unit'])
-        parsed_ingredient_name = ingredients['ingredient_name'].lower()
-        parsed_quantity_unit = ingredients['quantity_unit'].lower()
-        if(parsed_quantity_unit[-1] == 's'):
+        parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
+        parsed_quantity_unit = ingredients['quantity_unit'].lower().strip()
+        if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
             parsed_quantity_unit = parsed_quantity_unit[:-1]
         print('ingredient unit afetr parse', parsed_quantity_unit)
         ingredient = recipe.ingredient_set.create(ingredient_name=parsed_ingredient_name, 
-                        ingredient_quantity=round(ingredients['ingredient_quantity'],2), quantity_unit=parsed_quantity_unit, recipe=recipe)
+                        ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
         print(ingredient)
         ingredient.save()
 

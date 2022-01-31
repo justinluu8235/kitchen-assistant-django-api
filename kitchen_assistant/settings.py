@@ -12,8 +12,12 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
-
-
+from dotenv import load_dotenv
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
+CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
+CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
+CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -155,13 +159,12 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': "djtd4wqoc",
-    'API_KEY': "862418491127931",
-    'API_SECRET': 'Pe8InGzsMalXgKfd_F_4ZY-Cpoo',
+    'CLOUD_NAME': CLOUDINARY_NAME,
+    'API_KEY': CLOUDINARY_API_KEY,
+    'API_SECRET': CLOUDINARY_API_SECRET,
 }
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',)
-# }
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
 MEDIA__URL = '/images/'

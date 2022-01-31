@@ -182,6 +182,8 @@ def shoppinglist_generate(request):
                     existing_item = shopping_item_exists[i]
                     #if it does, get the unit, and convert the input unit to that unit
                     existing_quantity = existing_item.ingredient_quantity
+                    print('existing quantity', existing_quantity)
+                    print('new quantity', ingredient.ingredient_quantity)
                     existing_unit = existing_item.quantity_unit
                     if(existing_unit == ingredient.quantity_unit):
                         print('units match')
@@ -191,13 +193,17 @@ def shoppinglist_generate(request):
                         break
                     else:
                         print('units dont match, try matching')
+                        print()
                         existing_parsed_unit_info = parse_unit(existing_unit)
                         incoming_parsed_unit_info = parse_unit(ingredient.quantity_unit)
-                        if(not existing_parsed_unit_info[0] == 'not found' or not incoming_parsed_unit_info == 'not found'):
+                        if(existing_parsed_unit_info[0] != 'not found' and incoming_parsed_unit_info != 'not found'):
+
                             print('valid units')
+                            print('incoming info', incoming_parsed_unit_info)
+                            print('existing info',existing_parsed_unit_info )
                             multiplier = convert_units(incoming_parsed_unit_info[0], incoming_parsed_unit_info[1], existing_parsed_unit_info[0], existing_parsed_unit_info[1])
                             if not multiplier == 0: 
-                                
+                                print('multiplier', multiplier)
                                 existing_item.ingredient_quantity = float(existing_quantity) + (float(ingredient.ingredient_quantity) * multiplier)
                                 existing_item.save()
                                 created_item = True
@@ -223,12 +229,13 @@ def shoppinglist_generate(request):
 
 
 def parse_unit(unit_name):
+    print(unit_name)
 
     #weight
     weight = {
-        'grams': ['g', 'grams'],
-        'kilograms': ['kg', 'kilograms'],
-        'pound': ['lb', 'pounds'], 
+        'grams': ['g', 'gram'],
+        'kilograms': ['kg', 'kilogram'],
+        'pound': ['lb', 'pound'], 
         'ouce': ['oz', 'ounce']
     }
     #spoons
@@ -246,6 +253,7 @@ def parse_unit(unit_name):
     }
 
     parsed_unit = 'not found'
+    unit_type='n/a'
     for unit in weight:
         for str in weight[unit]:
             if(unit_name == str):
