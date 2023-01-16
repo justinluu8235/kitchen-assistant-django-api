@@ -19,6 +19,8 @@ CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
 CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 FRONTEND_URL= os.getenv("FRONTEND_URL")
+POSTGRES_PASSWORD= os.getenv("POSTGRES_PASSWORD")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -99,11 +101,11 @@ WSGI_APPLICATION = 'kitchen_assistant.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd4n8flesb5erft',
-        'HOST': 'ec2-3-232-22-121.compute-1.amazonaws.com',
+        'NAME': 'Kitchen assistant',
+        'HOST': 'localhost',
         'PORT': 5432,
-        'USER': 'trkgnstfzdbamp',
-        'PASSWORD': '7979cfe0bff8f752716209422b5c092f98544057212dedfe4a8f9238313d25c2',
+        'USER': 'postgres',
+        'PASSWORD': POSTGRES_PASSWORD,
     }
 }
 
