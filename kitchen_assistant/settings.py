@@ -12,10 +12,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
-if not os.environ.get("PRODUCTION"):
-    from dotenv import load_dotenv
-    load_dotenv()
-
+from dotenv import load_dotenv
+load_dotenv()
 API_KEY = os.getenv("API_KEY")
 CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
