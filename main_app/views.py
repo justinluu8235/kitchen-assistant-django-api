@@ -91,13 +91,19 @@ def signup_view(request):
         form = UserCreationForm(query_dict)
         print("Form Valid?", form.is_valid())
         if form.is_valid():
-            user = form.save()
-            user.email = sign_up_data['email']
-            user.save()
-            print("User created", user)
-            login(request, user)
-            serializer = UserSerializer(user)
+            try:
+                user = form.save()
+                user.email = sign_up_data['email']
+                user.save()
+                print("User created", user)
+                login(request, user)
+                serializer = UserSerializer(user)
+            except Exception as e:
+                print('error creating or saving user')
+
             return Response(serializer.data)
+        else:
+            print(form.errors)
 
         return Response("try again")
 
