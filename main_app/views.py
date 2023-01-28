@@ -85,7 +85,7 @@ def signup_view(request):
     if(request.method == 'POST'):
         print("data incoming: ", request.data)
         sign_up_data = request.data
-        dict = {'username': sign_up_data['name'], 'password1': sign_up_data['password'], 'password2': sign_up_data['password'], 'email': sign_up_data['email']}
+        dict = {'username': sign_up_data['email'], 'password1': sign_up_data['password'], 'password2': sign_up_data['password'], 'email': sign_up_data['email']}
         query_dict = QueryDict('', mutable=True)
         query_dict.update(dict)
         form = UserCreationForm(query_dict)
