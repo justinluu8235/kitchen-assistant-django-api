@@ -37,7 +37,7 @@ def login_view(request):
         # try to log the user in
         login_data = request.data
         print("Login data", login_data)
-        dict = {'username': login_data['username'], 'password': login_data['password']}
+        dict = {'username': login_data['email'], 'password': login_data['password']}
         query_dict = QueryDict('', mutable=True)
         query_dict.update(dict)
         form = AuthenticationForm(request,query_dict)
