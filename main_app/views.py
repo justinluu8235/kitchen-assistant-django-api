@@ -37,7 +37,7 @@ def login_view(request):
         # try to log the user in
         login_data = request.data
         print("Login data", login_data)
-        dict = {'username': login_data['username'], 'password': login_data['password']}
+        dict = {'username': login_data['email'], 'password': login_data['password']}
         query_dict = QueryDict('', mutable=True)
         query_dict.update(dict)
         form = AuthenticationForm(request,query_dict)
@@ -85,19 +85,25 @@ def signup_view(request):
     if(request.method == 'POST'):
         print("data incoming: ", request.data)
         sign_up_data = request.data
-        dict = {'username': sign_up_data['name'], 'password1': sign_up_data['password'], 'password2': sign_up_data['password'], 'email': sign_up_data['email']}
+        dict = {'username': sign_up_data['email'], 'password1': sign_up_data['password'], 'password2': sign_up_data['password'], 'email': sign_up_data['email']}
         query_dict = QueryDict('', mutable=True)
         query_dict.update(dict)
         form = UserCreationForm(query_dict)
         print("Form Valid?", form.is_valid())
         if form.is_valid():
-            user = form.save()
-            user.email = sign_up_data['email']
-            user.save()
-            print("User created", user)
-            login(request, user)
-            serializer = UserSerializer(user)
+            try:
+                user = form.save()
+                user.email = sign_up_data['email']
+                user.save()
+                print("User created", user)
+                login(request, user)
+                serializer = UserSerializer(user)
+            except Exception as e:
+                print('error creating or saving user')
+
             return Response(serializer.data)
+        else:
+            print(form.errors)
 
         return Response("try again")
 
