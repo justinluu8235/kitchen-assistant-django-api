@@ -1,20 +1,17 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from rest_framework.decorators import api_view
-from django.http import HttpResponseRedirect, HttpResponse
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 import json
-from django.http import QueryDict
-from .serializers import UserSerializer, UserFriendSerializer
+from .serializers import UserFriendSerializer
 import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
 from .models import UserFriend
-from knox.models import AuthToken
+
+from .view_classes.signup import SignupView
+
 
 # Create your views here.
 
@@ -84,41 +81,8 @@ def logout_view(request):
 def signup_view(request):
     if(request.method == 'POST'):
         print("data incoming: ", request.data)
-        sign_up_data = request.data
-        dict = {'username': sign_up_data['email'], 'password1': sign_up_data['password'], 'password2': sign_up_data['password'], 'email': sign_up_data['email']}
-        query_dict = QueryDict('', mutable=True)
-        query_dict.update(dict)
-        form = UserCreationForm(query_dict)
-        print("Form Valid?", form.is_valid())
-        if form.is_valid():
-            try:
-                user = form.save()
-                user.email = sign_up_data['email']
-                user.save()
-                print("User created", user)
-                login(request, user)
-                serializer = UserSerializer(user)
-            except Exception as e:
-                print('error creating or saving user')
+        return SignupView.sign_up(request)
 
-            return Response(serializer.data)
-        else:
-            print(form.errors)
-            # hacky way of cleaning username texts to email
-            if 'username' in form.errors:
-                error_msg = form.errors.get('username')
-                if len(error_msg) > 0 and type(error_msg[0]) == str:
-                    error_msg[0] = error_msg[0].replace('username', 'email')
-                form.errors.pop('username', None)
-                form.errors['email'] = error_msg
-            cleaned_msg = ""
-            for error in form.errors.keys():
-                msg_arr = form.errors[error]
-                if len(msg_arr) > 0:
-                    for msg in msg_arr:
-                        cleaned_msg += f"{msg} \n"
-
-            return Response({"errors": cleaned_msg})
 
 @api_view(['GET'])
 def userfriend_index(request, id):
