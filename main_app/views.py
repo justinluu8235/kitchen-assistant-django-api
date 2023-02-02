@@ -81,7 +81,7 @@ def logout_view(request):
 def signup_view(request):
     if(request.method == 'POST'):
         print("data incoming: ", request.data)
-        return SignupView.sign_up(request)
+        return SignupView().sign_up(request)
 
 
 @api_view(['GET'])

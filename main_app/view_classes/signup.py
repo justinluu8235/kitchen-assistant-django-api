@@ -20,10 +20,14 @@ class SignupView:
                 user.email = sign_up_data['email']
                 user.save()
                 print("User created", user)
-                login(request, user)
                 serializer = UserSerializer(user)
             except Exception as e:
-                print('error creating or saving user')
+                print(f'error creating or saving user {e}')
+
+            try:
+                login(request, user)
+            except Exception as e:
+                print(f'Error logging in user: {e}')
 
             return Response(serializer.data)
         else:
