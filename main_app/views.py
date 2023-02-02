@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 import json
+from django.http import QueryDict
 from .serializers import UserFriendSerializer
 import jwt
 from datetime import datetime, timedelta
