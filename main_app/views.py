@@ -104,9 +104,21 @@ def signup_view(request):
             return Response(serializer.data)
         else:
             print(form.errors)
+            # hacky way of cleaning username texts to email
+            if 'username' in form.errors:
+                error_msg = form.errors.get('username')
+                if len(error_msg) > 0 and type(error_msg[0]) == str:
+                    error_msg[0] = error_msg[0].replace('username', 'email')
+                form.errors.pop('username', None)
+                form.errors['email'] = error_msg
+            cleaned_msg = ""
+            for error in form.errors.keys():
+                msg_arr = form.errors[error]
+                if len(msg_arr) > 0:
+                    for msg in msg_arr:
+                        cleaned_msg += f"{msg} \n"
 
-        return Response("try again")
-
+            return Response({"errors": cleaned_msg})
 
 @api_view(['GET'])
 def userfriend_index(request, id):
