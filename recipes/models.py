@@ -25,7 +25,7 @@ class Recipe(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     recipe_category = models.ForeignKey(RecipeCategory, on_delete=models.SET_NULL,  
                                             null=True)
-    image = models.ImageField(_("Image"),max_length=200,  upload_to=upload_to, blank=True, null=True)
+    image = models.ImageField(_("Image"),max_length=300,  upload_to=upload_to, blank=True, null=True)
 
 
     
