@@ -279,19 +279,15 @@ def recipe_search_new(request):
 class RecipeEdit(APIView):
     parser_classes = [MultiPartParser, FormParser]
     def post(self, request, format=None):
-
+        # Part 2 of saving the edited reipe - mainly for the image
         print('requestdata', request.data)
 
         recipe_id = request.data['id']
         image_file = request.data['image']
         print('image file', image_file)
         recipe = Recipe.objects.get(pk=recipe_id)
-        print('image before', recipe.image)
-        recipe.image = image_file
-   
-        recipe.save()
-        print('after save', recipe.image)
-        recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image) 
+        cloudinary_upload_string = f'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/{str(image_file)}'
+        recipe.image = cloudinary_upload_string
         recipe.save()
         print('image after', recipe.image)
         serializer = RecipeSerializer(recipe, many=False)
@@ -315,11 +311,6 @@ def recipe_edit(request, id):
     print("user:", user)
 
     recipe = Recipe.objects.get(pk=id)
-    print('recipe image', recipe.image)
-    if( recipe.image != None and str(recipe.image) != '' ):
-        
-        recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image) 
-        print('after concat', recipe.image)
     recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category)
     print('recipe category', recipe_category)
     recipe_category[0].save()
