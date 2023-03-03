@@ -13,7 +13,8 @@ from django.shortcuts import redirect
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
-
+import cloudinary.api
+from django.conf import settings
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -188,8 +189,7 @@ def recipe_new(request, format=None):
         if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
             parsed_quantity_unit = parsed_quantity_unit[:-1]
         print('ingredient unit afetr parse', parsed_quantity_unit)
-        print(type(int(ingredients['ingredient_quantity'])))
-        ingredient = recipe.ingredient_set.create(ingredient_name=parsed_ingredient_name, 
+        ingredient = recipe.ingredient_set.create(ingredient_name=parsed_ingredient_name,
                         ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
         print(ingredient)
         ingredient.save()
@@ -286,7 +286,12 @@ class RecipeEdit(APIView):
         image_file = request.data['image']
         print('image file', image_file)
         recipe = Recipe.objects.get(pk=recipe_id)
-        cloudinary_upload_string = f'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/{str(image_file)}'
+        _maybe_delete_cloudinary_image(recipe.image)
+        # saving it serializes the file, and hits the upload_to function
+        recipe.image = image_file
+        recipe.save()
+        serialized_image_file = recipe.image
+        cloudinary_upload_string = f'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/{str(serialized_image_file)}'
         recipe.image = cloudinary_upload_string
         recipe.save()
         print('image after', recipe.image)
@@ -359,6 +364,27 @@ def recipe_edit(request, id):
 @api_view(['DELETE'])
 def recipe_delete(request, id):
     recipe = Recipe.objects.get(id=id)
+    # if a cloudinary image, delete from cloudinary as well.
+    _maybe_delete_cloudinary_image(recipe.image)
     recipe.delete()
-
     return Response("Item successfully deleted")
+
+def _maybe_delete_cloudinary_image(recipe_image):
+    if 'cloudinary' in str(recipe_image):
+        # last part of path is the public id,
+        # for ex: 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1675476400/recipes/image_l3s21z'
+        public_id = str(recipe_image).split('/').pop()
+        delete_path = f'recipes/{public_id}'
+        cloudinary_info = _get_cloudinary_info()
+        try:
+            response = cloudinary.api.delete_resources([delete_path], resource_type='image', **cloudinary_info)
+            print(f'No issue deleting cloudinary image: {response}')
+        except Exception as e:
+            print(f'Error when deleting cloudinary image: {e}')
+
+def _get_cloudinary_info() -> dict:
+    info = {}
+    info['cloud_name'] = settings.CLOUDINARY_STORAGE['CLOUD_NAME']
+    info['api_key'] = settings.CLOUDINARY_STORAGE['API_KEY']
+    info['api_secret'] = settings.CLOUDINARY_STORAGE['API_SECRET']
+    return info
