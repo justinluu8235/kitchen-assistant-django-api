@@ -112,13 +112,13 @@ def recipe_show(request, id):
     recipeId = id
     recipe = Recipe.objects.get(pk=id)
     print('recipe', recipe)
-    recipe_category = RecipeCategory.objects.get(pk=recipe.recipe_category.id)
+    recipe_category = recipe.recipe_category
     print('recipecat' , recipe_category)
-    ingredient_list = recipe.ingredient_set.all()
-    instruction_list = recipe.recipestep_set.all()
+    ingredient_list = recipe.ingredients.all()
+    instruction_list = recipe.steps.all().order_by('step_number')
     print('ingredients', ingredient_list)
     print('instructions', instruction_list)
-    recipe_serializer = RecipeSerializer(recipe , many=False)
+    recipe_serializer = RecipeSerializer(recipe, many=False)
     instructions_serializer = RecipeStepSerializer(instruction_list, many=True)
     ingredients_serializer = IngredientSerializer(ingredient_list, many=True)
     recipe_category_serializer = RecipeCategorySerializer(recipe_category, many=False)
@@ -177,7 +177,7 @@ def recipe_new(request, format=None):
     recipe.save()
 
     for instructions in instructions_list:
-        recipe_step = recipe.recipestep_set.create(step_number=instructions['step_number'], 
+        recipe_step = recipe.steps.create(step_number=instructions['step_number'],
                         instructions=instructions['instructions'], image=None, recipe=recipe)
         print(recipe_step)
         recipe_step.save()
@@ -189,7 +189,7 @@ def recipe_new(request, format=None):
         if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
             parsed_quantity_unit = parsed_quantity_unit[:-1]
         print('ingredient unit afetr parse', parsed_quantity_unit)
-        ingredient = recipe.ingredient_set.create(ingredient_name=parsed_ingredient_name,
+        ingredient = recipe.ingredients.create(ingredient_name=parsed_ingredient_name,
                         ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
         print(ingredient)
         ingredient.save()
@@ -240,7 +240,7 @@ def recipe_search_new(request):
     new_recipe.save()
 
     for instructions in instructions_list:
-        recipe_step = new_recipe.recipestep_set.create(step_number=instructions['step_number'], 
+        recipe_step = new_recipe.steps.create(step_number=instructions['step_number'],
                         instructions=instructions['instructions'], image=None, recipe=new_recipe)
         print(recipe_step)
         recipe_step.save()
@@ -252,7 +252,7 @@ def recipe_search_new(request):
         if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
             parsed_quantity_unit = parsed_quantity_unit[:-1]
         print('ingredient unit afetr parse', parsed_quantity_unit)
-        ingredient = new_recipe.ingredient_set.create(ingredient_name=parsed_ingredient_name, 
+        ingredient = new_recipe.ingredients.create(ingredient_name=parsed_ingredient_name,
                         ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=new_recipe)
         print(ingredient)
         ingredient.save()
@@ -325,13 +325,13 @@ def recipe_edit(request, id):
 
     print('update recipe', recipe)
     print('after update recipe', recipe.image)
-    recipe.recipestep_set.all().delete()
+    recipe.steps.all().delete()
     for instructions in instructions_list:
-        recipe_step = recipe.recipestep_set.create(step_number=instructions['step_number'], 
+        recipe_step = recipe.steps.create(step_number=instructions['step_number'],
                         instructions=instructions['instructions'], image=None, recipe=recipe)
         print(recipe_step)
         recipe_step.save()
-    recipe.ingredient_set.all().delete()
+    recipe.ingredients.all().delete()
     for ingredients in ingredients_list:
         print('ingredient unit before parse', ingredients['quantity_unit'])
         parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
@@ -339,7 +339,7 @@ def recipe_edit(request, id):
         if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
             parsed_quantity_unit = parsed_quantity_unit[:-1]
         print('ingredient unit afetr parse', parsed_quantity_unit)
-        ingredient = recipe.ingredient_set.create(ingredient_name=parsed_ingredient_name, 
+        ingredient = recipe.ingredients.create(ingredient_name=parsed_ingredient_name,
                         ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
         print(ingredient)
         ingredient.save()
