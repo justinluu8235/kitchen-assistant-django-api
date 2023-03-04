@@ -36,7 +36,7 @@ class RecipeStep(models.Model):
     step_number = models.IntegerField(default=1)
     instructions = models.CharField(max_length=1000, default='N/A')
     image = models.CharField(max_length=200, null=True)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='steps')
     
 
 
@@ -44,4 +44,4 @@ class Ingredient(models.Model):
     ingredient_name = models.CharField(max_length=100, default='N/A')
     ingredient_quantity = models.CharField(max_length=50, default='N/A')
     quantity_unit = models.CharField(max_length=50, default='N/A')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='ingredients')

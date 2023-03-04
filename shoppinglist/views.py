@@ -158,7 +158,7 @@ def shoppinglist_generate(request):
     recipe = Recipe.objects.get(pk=recipe_id)
     print('recipe', recipe)
 
-    ingredient_list = recipe.ingredient_set.all()
+    ingredient_list = recipe.ingredients.all()
     print('ingredient list', ingredient_list)
 
     pantry_object_list = PantryItem.objects.all().filter(user=user)
