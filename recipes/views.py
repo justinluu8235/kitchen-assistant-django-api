@@ -242,62 +242,34 @@ def recipe_search_new(request):
     return Response(obj)
     
 
-
-
-class RecipeEdit(APIView):
-    parser_classes = [MultiPartParser, FormParser]
-    def post(self, request, format=None):
-        # Part 2 of saving the edited reipe - mainly for the image
-        print('requestdata', request.data)
-
-        recipe_id = request.data['id']
-        image_file = request.data['image']
-        print('image file', image_file)
-        recipe = Recipe.objects.get(pk=recipe_id)
-        _maybe_delete_cloudinary_image(recipe.image)
-        # saving it serializes the file, and hits the upload_to function
-        recipe.image = image_file
-        recipe.save()
-        serialized_image_file = recipe.image
-        cloudinary_upload_string = f'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/{str(serialized_image_file)}'
-        recipe.image = cloudinary_upload_string
-        recipe.save()
-        print('image after', recipe.image)
-        serializer = RecipeSerializer(recipe, many=False)
-
-        print('serializer data', serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 @api_view(['POST'])
 def recipe_edit(request, id):
     user_id = request.data['user_id']
     recipe_name = request.data['recipe_name']
     recipe_category = request.data['recipe_category']
-    instructions_list = request.data['instructions_list']
-    ingredients_list = request.data['ingredients_list']
-    print(user_id)
-    print(recipe_name)
-    print(instructions_list)
-
+    instructions_list = json.loads(request.data['instructions_list'])
+    ingredients_list = json.loads(request.data['ingredients_list'])
+    image_file = request.data['image']
     user = User.objects.get(pk=user_id)
-    print("user:", user)
 
     recipe = Recipe.objects.get(pk=id)
-    recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category)
-    print('recipe category', recipe_category)
-    recipe_category[0].save()
-    
-    recipe.recipe_category = recipe_category[0]
+    recipe_category, created = RecipeCategory.objects.get_or_create(user=user, category_name=recipe_category)
+    recipe.recipe_category = recipe_category
+    recipe.recipe_name = recipe_name
+    if image_file:
+        _maybe_delete_cloudinary_image(recipe.image)
+        recipe.image = image_file
+        recipe.save()
+        serialized_image_file = recipe.image
+        cloudinary_upload_string = f'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/{str(serialized_image_file)}'
+        recipe.image = cloudinary_upload_string
+
     recipe.save()
 
-    print('update recipe', recipe)
-    print('after update recipe', recipe.image)
     recipe.steps.all().delete()
     for instructions in instructions_list:
         recipe_step = recipe.steps.create(step_number=instructions['step_number'],
                         instructions=instructions['instructions'], image=None, recipe=recipe)
-        print(recipe_step)
         recipe_step.save()
     recipe.ingredients.all().delete()
     for ingredients in ingredients_list:
@@ -315,7 +287,7 @@ def recipe_edit(request, id):
 
 
     recipe_serializer = RecipeSerializer(recipe , many=False)
-    recipe_category_serializer = RecipeCategorySerializer(recipe_category[0], many=False)
+    recipe_category_serializer = RecipeCategorySerializer(recipe_category, many=False)
     instructions_serializer = RecipeStepSerializer(RecipeStep.objects.filter(recipe=recipe), many=True)
     ingredients_serializer = IngredientSerializer(Ingredient.objects.filter(recipe=recipe), many=True)
     obj={
@@ -324,8 +296,6 @@ def recipe_edit(request, id):
         'instructions': instructions_serializer.data,
         'ingredients': ingredients_serializer.data,
     }
-    # print(obj)
-    # data=json.dumps(obj)
     return Response(obj)
 
 
