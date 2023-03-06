@@ -135,80 +135,48 @@ def recipe_show(request, id):
 class RecipeCreate(APIView):
     parser_classes = [MultiPartParser, FormParser]
     def post(self, request, format=None):
-
-        print('requestdata', request.data)
+        instructions_list = json.loads(request.data['instructions_list'])
+        ingredients_list = json.loads(request.data['ingredients_list'])
+        recipe_category = request.data['recipe_category_name']
 
         serializer = RecipeSerializer(data=request.data)
         if(serializer.is_valid()):
-            serializer.save()
-            print(serializer.data)
+            # saving the recipe to get it to serialize the FileUpload object for the image
+            recipe = serializer.save()
+            recipe_category, created = RecipeCategory.objects.get_or_create(category_name=recipe_category, user=recipe.user)
 
+            recipe = Recipe.objects.get(pk=recipe.id)
+            recipe.recipe_category = recipe_category
+            if recipe.image and str(recipe.image) != '':
+                recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image)
+            recipe.save()
+            for instructions in instructions_list:
+                recipe_step = recipe.steps.create(step_number=instructions['step_number'],
+                                                  instructions=instructions['instructions'], image=None, recipe=recipe)
 
+            for ingredients in ingredients_list:
+                parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
+                parsed_quantity_unit = ingredients['quantity_unit'].lower().strip()
+                if (len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's'):
+                    parsed_quantity_unit = parsed_quantity_unit[:-1]
+                ingredient = recipe.ingredients.create(ingredient_name=parsed_ingredient_name,
+                                                       ingredient_quantity=str(
+                                                           round(float(ingredients['ingredient_quantity']), 2)),
+                                                       quantity_unit=parsed_quantity_unit, recipe=recipe)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            recipe_serializer = RecipeSerializer(recipe, many=False)
+            recipe_category_serializer = RecipeCategorySerializer(recipe_category, many=False)
+            instructions_serializer = RecipeStepSerializer(RecipeStep.objects.filter(recipe=recipe), many=True)
+            ingredients_serializer = IngredientSerializer(Ingredient.objects.filter(recipe=recipe), many=True)
+            obj = {
+                'recipe': recipe_serializer.data,
+                'category': recipe_category_serializer.data,
+                'instructions': instructions_serializer.data,
+                'ingredients': ingredients_serializer.data,
+            }
+            return Response(obj)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-@api_view(['POST'])
-def recipe_new(request, format=None):
-    user_id = request.data['user_id']
-    recipe_id = request.data['recipe_id']
-    recipe_category = request.data['recipe_category']
-    instructions_list = request.data['instructions_list']
-    ingredients_list = request.data['ingredients_list']
-
-    user = User.objects.get(pk=user_id)
-    print("user:", user)
-    
-    recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category)
-    print('recipe category', recipe_category)
-    recipe_category[0].user = user
-    recipe_category[0].save()
-
-    recipe = Recipe.objects.get(pk=recipe_id)
-    recipe.recipe_category = recipe_category[0]
-    print('recipe image' , str(recipe.image) == '' )
-    if( recipe.image is not None and str(recipe.image) is not '' ):
-        recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image) 
-    
-    recipe.user = user
-    recipe.save()
-
-    for instructions in instructions_list:
-        recipe_step = recipe.steps.create(step_number=instructions['step_number'],
-                        instructions=instructions['instructions'], image=None, recipe=recipe)
-        print(recipe_step)
-        recipe_step.save()
-    
-    for ingredients in ingredients_list:
-        print('ingredient unit before parse', ingredients['quantity_unit'])
-        parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
-        parsed_quantity_unit = ingredients['quantity_unit'].lower().strip()
-        if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
-            parsed_quantity_unit = parsed_quantity_unit[:-1]
-        print('ingredient unit afetr parse', parsed_quantity_unit)
-        ingredient = recipe.ingredients.create(ingredient_name=parsed_ingredient_name,
-                        ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
-        print(ingredient)
-        ingredient.save()
-
-
-
-    recipe_serializer = RecipeSerializer(recipe , many=False)
-    recipe_category_serializer = RecipeCategorySerializer(recipe_category[0], many=False)
-    instructions_serializer = RecipeStepSerializer(RecipeStep.objects.filter(recipe=recipe), many=True)
-    ingredients_serializer = IngredientSerializer(Ingredient.objects.filter(recipe=recipe), many=True)
-    obj={
-        'recipe': recipe_serializer.data,
-        'category': recipe_category_serializer.data,
-        'instructions': instructions_serializer.data,
-        'ingredients': ingredients_serializer.data,
-    }
-    # print(obj)
-    # data=json.dumps(obj)
-    return Response(obj)
 
 
 

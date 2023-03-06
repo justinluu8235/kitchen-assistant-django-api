@@ -9,7 +9,6 @@ urlpatterns = [
     path('searchRecipes/', views.search_recipe, name="search-recipe-index"),
     path('searchRecipes/<int:id>', views.search_recipe_view, name="view-search-recipe"),
     path('searchRecipes/new',  views.recipe_search_new, name="new-search-recipe"),
-    path('new-2', views.recipe_new, name="new-recipe-2"),
     path('new', RecipeCreate.as_view(), name="new-recipe"),
     path('view/<int:id>', views.recipe_show, name="show-recipe"),
     path('edit/<int:id>', views.recipe_edit, name="edit-recipe"),
