@@ -28,8 +28,6 @@ def recipe_index(request, id):
     print(serializer.data)
     return Response(serializer.data)
 
-
-
 @api_view(['POST'])
 def search_recipe(request):
     search_query = request.data['searchVal']
@@ -86,9 +84,6 @@ def search_recipe_view(request, id):
     return Response(data)
 
 
-
-
-
 def parse_ingredients(ingredient):
     parsed_ingredient = {
             'ingredient_name': ingredient['name'],
@@ -105,30 +100,34 @@ def parse_instructions(instructions):
     return parsed_instructions
 
 
-
 @api_view(['GET'])
 def recipe_show(request, id):
-    recipeId = id
     recipe = Recipe.objects.get(pk=id)
-    print('recipe', recipe)
-    recipe_category = recipe.recipe_category
-    print('recipecat' , recipe_category)
+    recipe_categories = recipe.categories.all()
     ingredient_list = recipe.ingredients.all()
     instruction_list = recipe.steps.all().order_by('step_number')
-    print('ingredients', ingredient_list)
-    print('instructions', instruction_list)
     recipe_serializer = RecipeSerializer(recipe, many=False)
     instructions_serializer = RecipeStepSerializer(instruction_list, many=True)
     ingredients_serializer = IngredientSerializer(ingredient_list, many=True)
-    recipe_category_serializer = RecipeCategorySerializer(recipe_category, many=False)
-    obj={
+    recipe_categories_serializer = RecipeCategorySerializer(recipe_categories, many=True)
+    obj = {
         'recipe': recipe_serializer.data,
         'instructions': instructions_serializer.data,
         'ingredients': ingredients_serializer.data,
-        'recipe_category': recipe_category_serializer.data,
+        'recipe_categories': recipe_categories_serializer.data,
     }
-    print('response', obj)
     return Response(obj)
+
+@api_view(['GET'])
+def categories_get(request, user_id):
+    categories = RecipeCategory.objects.filter(user_id=user_id)
+    recipe_categories_serializer = RecipeCategorySerializer(categories, many=True)
+    obj = {
+        'recipe_categories': recipe_categories_serializer.data,
+    }
+    return Response(obj)
+
+
 
 @transaction.atomic
 @api_view(['POST'])
@@ -142,20 +141,16 @@ def recipe_search_new(request):
     recipe_image=None
     if 'recipe_image' in request.data:
         recipe_image = request.data['recipe_image']
-    print(user_id)
-    print(recipe_name)
-    print(instructions_list)
 
     user = User.objects.get(pk=user_id)
-    print("user:", user)
-    
-    recipe_category = RecipeCategory.objects.get_or_create(category_name=recipe_category)
-    print('recipe category', recipe_category)
-    recipe_category[0].user = user
-    recipe_category[0].save()
 
-    new_recipe = Recipe.objects.create(recipe_name=recipe_name, user = user, recipe_category=recipe_category[0], image=recipe_image)
-    print('recipe created', new_recipe)
+    recipe_category, created = RecipeCategory.objects.get_or_create(
+        category_name=recipe_category, user=user)
+
+    new_recipe = Recipe.objects.create(
+        recipe_name=recipe_name, user=user, image=recipe_image
+    )
+    new_recipe.categories.set([recipe_category.id])
     new_recipe.save()
 
     for instructions in instructions_list:
@@ -177,14 +172,13 @@ def recipe_search_new(request):
         ingredient.save()
 
 
-
     recipe_serializer = RecipeSerializer(new_recipe , many=False)
-    recipe_category_serializer = RecipeCategorySerializer(recipe_category[0], many=False)
+    recipe_categories_serializer = RecipeCategorySerializer(new_recipe.categories.all(), many=False)
     instructions_serializer = RecipeStepSerializer(RecipeStep.objects.filter(recipe=new_recipe), many=True)
     ingredients_serializer = IngredientSerializer(Ingredient.objects.filter(recipe=new_recipe), many=True)
     obj={
         'recipe': recipe_serializer.data,
-        'category': recipe_category_serializer.data,
+        'recipe_categories': recipe_categories_serializer.data,
         'instructions': instructions_serializer.data,
         'ingredients': ingredients_serializer.data,
     }
@@ -198,7 +192,7 @@ def recipe_search_new(request):
 def recipe_edit(request, id):
     user_id = request.data['user_id']
     recipe_name = request.data['recipe_name']
-    recipe_category = request.data['recipe_category']
+    recipe_category_name = request.data['recipe_category']
     instructions_list = json.loads(request.data['instructions_list'])
     ingredients_list = json.loads(request.data['ingredients_list'])
     image_file = request.data['image']
@@ -207,8 +201,12 @@ def recipe_edit(request, id):
     cleaned_ingredients: list(object) = clean_ingredients(ingredients_list)
 
     recipe = Recipe.objects.get(pk=id)
-    recipe_category, created = RecipeCategory.objects.get_or_create(user=user, category_name=recipe_category)
-    recipe.recipe_category = recipe_category
+    categories = []
+    for category_name in [recipe_category_name]:
+        recipe_category, created = RecipeCategory.objects.get_or_create(
+            user=user, category_name=category_name)
+        categories.append(recipe_category)
+    recipe.categories.set(categories)
     recipe.recipe_name = recipe_name
     if image_file:
         _maybe_delete_cloudinary_image(recipe.image)
@@ -235,15 +233,13 @@ def recipe_edit(request, id):
                         ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
         ingredient.save()
 
-
-
     recipe_serializer = RecipeSerializer(recipe , many=False)
-    recipe_category_serializer = RecipeCategorySerializer(recipe_category, many=False)
+    recipe_categories_serializer = RecipeCategorySerializer(categories, many=True)
     instructions_serializer = RecipeStepSerializer(RecipeStep.objects.filter(recipe=recipe), many=True)
     ingredients_serializer = IngredientSerializer(Ingredient.objects.filter(recipe=recipe), many=True)
     obj={
         'recipe': recipe_serializer.data,
-        'category': recipe_category_serializer.data,
+        'recipe_categories': recipe_categories_serializer.data,
         'instructions': instructions_serializer.data,
         'ingredients': ingredients_serializer.data,
     }
