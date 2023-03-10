@@ -15,18 +15,20 @@ class RecipeCreate(APIView):
     def post(self, request, format=None):
         instructions_list = json.loads(request.data['instructions_list'])
         ingredients_list = json.loads(request.data['ingredients_list'])
-        recipe_category = request.data['recipe_category_name']
+        recipe_categories = json.loads(request.data['recipe_categories'])
         cleaned_instructions: list(str) = clean_instructions(instructions_list)
         cleaned_ingredients: list(object) = clean_ingredients(ingredients_list)
-
         serializer = RecipeSerializer(data=request.data)
         if serializer.is_valid():
             # saving the recipe to get it to serialize the FileUpload object for the image
             recipe = serializer.save()
-            recipe_category, created = RecipeCategory.objects.get_or_create(category_name=recipe_category, user=recipe.user)
-
+            categories = []
+            for category_name in recipe_categories:
+                recipe_category, created = RecipeCategory.objects.get_or_create(
+                    category_name=category_name, user=recipe.user)
+                categories.append(recipe_category)
             recipe = Recipe.objects.get(pk=recipe.id)
-            recipe.recipe_category = recipe_category
+            recipe.categories.set(categories)
             if recipe.image and str(recipe.image) != '':
                 recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image)
             recipe.save()
@@ -46,12 +48,12 @@ class RecipeCreate(APIView):
                                                        quantity_unit=parsed_quantity_unit, recipe=recipe)
 
             recipe_serializer = RecipeSerializer(recipe, many=False)
-            recipe_category_serializer = RecipeCategorySerializer(recipe_category, many=False)
+            recipe_categories_serializer = RecipeCategorySerializer(categories, many=True)
             instructions_serializer = RecipeStepSerializer(RecipeStep.objects.filter(recipe=recipe), many=True)
             ingredients_serializer = IngredientSerializer(Ingredient.objects.filter(recipe=recipe), many=True)
             obj = {
                 'recipe': recipe_serializer.data,
-                'category': recipe_category_serializer.data,
+                'recipe_categories': recipe_categories_serializer.data,
                 'instructions': instructions_serializer.data,
                 'ingredients': ingredients_serializer.data,
             }
