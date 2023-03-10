@@ -192,7 +192,7 @@ def recipe_search_new(request):
 def recipe_edit(request, id):
     user_id = request.data['user_id']
     recipe_name = request.data['recipe_name']
-    recipe_category_name = request.data['recipe_category']
+    recipe_categories = json.loads(request.data['recipe_categories'])
     instructions_list = json.loads(request.data['instructions_list'])
     ingredients_list = json.loads(request.data['ingredients_list'])
     image_file = request.data['image']
@@ -202,7 +202,7 @@ def recipe_edit(request, id):
 
     recipe = Recipe.objects.get(pk=id)
     categories = []
-    for category_name in [recipe_category_name]:
+    for category_name in recipe_categories:
         recipe_category, created = RecipeCategory.objects.get_or_create(
             user=user, category_name=category_name)
         categories.append(recipe_category)

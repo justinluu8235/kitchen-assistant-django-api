@@ -15,18 +15,17 @@ class RecipeCreate(APIView):
     def post(self, request, format=None):
         instructions_list = json.loads(request.data['instructions_list'])
         ingredients_list = json.loads(request.data['ingredients_list'])
-        recipe_category_name = request.data['recipe_category_name']
+        recipe_categories = json.loads(request.data['recipe_categories'])
         cleaned_instructions: list(str) = clean_instructions(instructions_list)
         cleaned_ingredients: list(object) = clean_ingredients(ingredients_list)
-
         serializer = RecipeSerializer(data=request.data)
         if serializer.is_valid():
             # saving the recipe to get it to serialize the FileUpload object for the image
             recipe = serializer.save()
             categories = []
-            for category_name in [recipe_category_name]:
+            for category_name in recipe_categories:
                 recipe_category, created = RecipeCategory.objects.get_or_create(
-                    category_name=recipe_category, user=recipe.user)
+                    category_name=category_name, user=recipe.user)
                 categories.append(recipe_category)
             recipe = Recipe.objects.get(pk=recipe.id)
             recipe.categories.set(categories)
