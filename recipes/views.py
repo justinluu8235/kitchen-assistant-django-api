@@ -160,15 +160,10 @@ def recipe_search_new(request):
         recipe_step.save()
     
     for ingredients in ingredients_list:
-        print('ingredient unit before parse', ingredients['quantity_unit'])
         parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
         parsed_quantity_unit = ingredients['quantity_unit'].lower().strip()
-        if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
-            parsed_quantity_unit = parsed_quantity_unit[:-1]
-        print('ingredient unit afetr parse', parsed_quantity_unit)
         ingredient = new_recipe.ingredients.create(ingredient_name=parsed_ingredient_name,
                         ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=new_recipe)
-        print(ingredient)
         ingredient.save()
 
 
@@ -227,8 +222,6 @@ def recipe_edit(request, id):
     for ingredients in cleaned_ingredients:
         parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
         parsed_quantity_unit = ingredients['quantity_unit'].lower().strip()
-        if(len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's' ):
-            parsed_quantity_unit = parsed_quantity_unit[:-1]
         ingredient = recipe.ingredients.create(ingredient_name=parsed_ingredient_name,
                         ingredient_quantity=str(round(float(ingredients['ingredient_quantity']),2)), quantity_unit=parsed_quantity_unit, recipe=recipe)
         ingredient.save()

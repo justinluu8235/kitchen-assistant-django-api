@@ -40,8 +40,6 @@ class RecipeCreate(APIView):
             for ingredients in cleaned_ingredients:
                 parsed_ingredient_name = ingredients['ingredient_name'].lower().strip()
                 parsed_quantity_unit = ingredients['quantity_unit'].lower().strip()
-                if (len(parsed_quantity_unit) > 1 and parsed_quantity_unit[-1] == 's'):
-                    parsed_quantity_unit = parsed_quantity_unit[:-1]
                 ingredient = recipe.ingredients.create(ingredient_name=parsed_ingredient_name,
                                                        ingredient_quantity=str(
                                                            round(float(ingredients['ingredient_quantity']), 2)),
