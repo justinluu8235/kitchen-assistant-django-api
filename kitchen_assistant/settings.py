@@ -37,7 +37,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com',
                  '127.0.0.1', '0.0.0.0', 'localhost',
-                 'django-env.eba-p3pw5qpb.us-west-2.elasticbeanstalk.com']
+                 'django-env.eba-p3pw5qpb.us-west-2.elasticbeanstalk.com',
+                 '172.31.11.35']
 
 
 # Application definition
