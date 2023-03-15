@@ -162,7 +162,7 @@ LOGIN_REDIRECT_URL = '/recipes'
 CORS_ALLOWED_ORIGINS = [
 
     FRONTEND_URL,
-    "http://localhost:8000",
+    "http://localhost:8000", 'https://heroku-branch--statuesque-babka-9ca592.netlify.app/',
 
 ]
 
