@@ -151,7 +151,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -165,7 +165,7 @@ LOGIN_REDIRECT_URL = '/recipes'
 CORS_ALLOWED_ORIGINS = [
 
     FRONTEND_URL,
-    "http://localhost:8000", 'https://heroku-branch--statuesque-babka-9ca592.netlify.app/',
+    "http://localhost:8000", 'https://heroku-branch--statuesque-babka-9ca592.netlify.app',
 
 ]
 
