@@ -35,7 +35,10 @@ SECRET_KEY = 'django-insecure-16&^=_e!f_%&r4!ozs+2@g)e35*g&4s-kj#0xvvf1&-hcwjv98
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com', '127.0.0.1', '0.0.0.0', 'localhost', 'kitchen-assistant-backend-env.eba-m4muzydb.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com',
+                 '127.0.0.1', '0.0.0.0', 'localhost',
+                 'django-env.eba-p3pw5qpb.us-west-2.elasticbeanstalk.com',
+                 '172.31.11.35', 'awseb-awseb-193yb98ymqm32-736766466.us-west-2.elb.amazonaws.com']
 
 
 # Application definition
@@ -148,7 +151,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -162,7 +165,7 @@ LOGIN_REDIRECT_URL = '/recipes'
 CORS_ALLOWED_ORIGINS = [
 
     FRONTEND_URL,
-    "http://localhost:8000", 'https://heroku-branch--statuesque-babka-9ca592.netlify.app/',
+    "http://localhost:8000", 'https://heroku-branch--statuesque-babka-9ca592.netlify.app',
 
 ]
 

@@ -249,7 +249,7 @@ def recipe_delete(request, id):
 
 def _maybe_delete_cloudinary_image(recipe_image):
     if 'cloudinary' in str(recipe_image):
-        # last part of path is the public id,
+        # last part of path is the static id,
         # for ex: 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1675476400/recipes/image_l3s21z'
         public_id = str(recipe_image).split('/').pop()
         delete_path = f'recipes/{public_id}'
