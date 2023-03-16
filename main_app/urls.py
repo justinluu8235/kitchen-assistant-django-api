@@ -1,7 +1,5 @@
 from django.urls import path
 from . import views
-from django.conf import settings
-from django.conf.urls.static import static
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -22,4 +20,4 @@ urlpatterns = [
     path('userFriends/delete', views.userfriend_unfriend, name="userfriend-delete"),
 
 
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
