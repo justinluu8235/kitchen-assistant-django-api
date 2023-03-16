@@ -51,8 +51,6 @@ def login_view(request):
                     token=jwt.encode({'id': user.id, 'username': user.username, 'email': user.email, 'password': user.password,
                             'exp': datetime.now() + timedelta(hours=9)}, 
                             settings.SECRET_KEY, algorithm='HS256')
-                    print('token', token)
-                    print('exp', datetime.now() + timedelta(hours=5))
                     user_info = {
                         'userData':
                         {
