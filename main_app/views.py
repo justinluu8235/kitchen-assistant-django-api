@@ -29,6 +29,10 @@ def get_name(request, id):
     return Response(username)
 
 
+@api_view(['GET'])
+def eb_view(request):
+    return Response('hello', status=200)
+
 @api_view(['POST'])
 def login_view(request):
     if request.method == 'POST':
