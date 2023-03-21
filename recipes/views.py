@@ -120,7 +120,7 @@ def recipe_show(request, id):
 
 @api_view(['GET'])
 def categories_get(request, user_id):
-    categories = RecipeCategory.objects.filter(user_id=user_id)
+    categories = RecipeCategory.objects.filter(user_id=user_id).order_by('category_name')
     recipe_categories_serializer = RecipeCategorySerializer(categories, many=True)
     obj = {
         'recipe_categories': recipe_categories_serializer.data,

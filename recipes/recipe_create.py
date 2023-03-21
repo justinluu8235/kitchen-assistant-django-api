@@ -33,7 +33,7 @@ class RecipeCreate(APIView):
                 recipe.image = 'https://res.cloudinary.com/djtd4wqoc/image/upload/v1643515599/' + str(recipe.image)
             recipe.save()
             for step_index, instructions in enumerate(cleaned_instructions):
-                step_number = step_index
+                step_number = step_index + 1
                 recipe_step = recipe.steps.create(step_number=step_number,
                                                   instructions=instructions,
                                                   image=None, recipe=recipe)

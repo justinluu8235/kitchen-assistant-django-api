@@ -26,6 +26,10 @@ class RecipeCategory(models.Model):
     def __str__(self):
         return self.category_name
 
+    def save(self, *args, **kwargs):
+        self.category_name = self.category_name.lower()
+        super(RecipeCategory, self).save(*args, **kwargs)
+
 
 class Recipe(models.Model):
     recipe_name = models.CharField(max_length=100, default='N/A')
