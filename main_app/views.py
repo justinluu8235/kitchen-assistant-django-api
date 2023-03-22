@@ -38,7 +38,6 @@ def login_view(request):
     if request.method == 'POST':
         # try to log the user in
         login_data = request.data
-        print("Login data", login_data)
         dict = {'username': login_data['email'], 'password': login_data['password']}
         query_dict = QueryDict('', mutable=True)
         query_dict.update(dict)
@@ -47,13 +46,13 @@ def login_view(request):
         if form.is_valid():
             u = form.cleaned_data['username']
             p = form.cleaned_data['password']
-            user = authenticate(username = u, password = p)
+            user = authenticate(username=u, password = p)
             if user is not None:
                 if user.is_active:
                     login(request, user) # log the user in by creating a session
                     
                     token=jwt.encode({'id': user.id, 'username': user.username, 'email': user.email, 'password': user.password,
-                            'exp': datetime.now() + timedelta(hours=9)}, 
+                            'exp': datetime.utcnow() + timedelta(hours=3)},
                             settings.SECRET_KEY, algorithm='HS256')
                     user_info = {
                         'userData':
@@ -65,14 +64,9 @@ def login_view(request):
                         'token': 'Bearer ' + str(token),
                         'success': True
                     }
-                    print(user_info)
                     data = json.dumps(user_info)
-                    # serializer = UserSerializer(user_token)
                     return Response(data)
-                # else:
-                #     print('The account has been disabled.')
-                #     return redirect('http://localhost:3000/login')
-  
+
 
 @api_view(['GET'])
 def logout_view(request):
