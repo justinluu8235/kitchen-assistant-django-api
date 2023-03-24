@@ -38,9 +38,8 @@ SECRET_KEY = ENV_SECRET_KEY
 DEBUG = False
 
 ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com',
-                 # '127.0.0.1', '0.0.0.0', 'localhost',
                  'django-env.eba-p3pw5qpb.us-west-2.elasticbeanstalk.com',
-                 '172.31.11.35', 'awseb-awseb-193yb98ymqm32-736766466.us-west-2.elb.amazonaws.com', '35.83.198.23']
+                 'awseb-awseb-193yb98ymqm32-736766466.us-west-2.elb.amazonaws.com']
 if ADDITIONAL_ALLOWED_HOST:
     ALLOWED_HOSTS.append(ADDITIONAL_ALLOWED_HOST)
 
