@@ -165,10 +165,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/recipes'
 
 CORS_ALLOWED_ORIGINS = [
-
     FRONTEND_URL,
-    "http://localhost:8000", 'https://heroku-branch--statuesque-babka-9ca592.netlify.app',
-
+    'https://heroku-branch--statuesque-babka-9ca592.netlify.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
