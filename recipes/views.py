@@ -20,9 +20,7 @@ API_KEY = os.getenv("API_KEY")
 
 @api_view(['GET'])
 def recipe_index(request, id):
-    print('user id', id)
     user = User.objects.get(pk=id)
-    print('user', user)
     recipe_list = Recipe.objects.filter(user=user)
     serializer = RecipeSerializer(recipe_list, many=True)
     print(serializer.data)
