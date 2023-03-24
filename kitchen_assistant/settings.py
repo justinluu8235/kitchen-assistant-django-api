@@ -21,6 +21,8 @@ CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
 CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 FRONTEND_URL= os.getenv("FRONTEND_URL")
 POSTGRES_PASSWORD= os.getenv("POSTGRES_PASSWORD")
+ADDITIONAL_ALLOWED_HOST = os.getenv("ADDITIONAL_ALLOWED_HOST")
+ENV_SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,16 +32,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-16&^=_e!f_%&r4!ozs+2@g)e35*g&4s-kj#0xvvf1&-hcwjv98'
+SECRET_KEY = ENV_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com',
-                 '127.0.0.1', '0.0.0.0', 'localhost',
+                 # '127.0.0.1', '0.0.0.0', 'localhost',
                  'django-env.eba-p3pw5qpb.us-west-2.elasticbeanstalk.com',
                  '172.31.11.35', 'awseb-awseb-193yb98ymqm32-736766466.us-west-2.elb.amazonaws.com', '35.83.198.23']
-
+if ADDITIONAL_ALLOWED_HOST:
+    ALLOWED_HOSTS.append(ADDITIONAL_ALLOWED_HOST)
 
 # Application definition
 
