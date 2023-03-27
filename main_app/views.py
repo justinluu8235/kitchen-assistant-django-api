@@ -70,7 +70,6 @@ def login_view(request):
 
 @api_view(['GET'])
 def logout_view(request):
-    print('logout request', request)
     logout(request)
     return Response('logged out')
 
