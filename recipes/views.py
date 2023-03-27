@@ -14,17 +14,36 @@ from dotenv import load_dotenv
 import os
 import cloudinary.api
 from django.conf import settings
+import jwt
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
+def validate_token(bearer_token, user: User):
+    if not bearer_token:
+        raise Exception("access denied..who are you?")
+    token = bearer_token.split(' ')[1]  # remove Bearer
+    decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+    token_user_id = decoded['id']
+    token_email = decoded['email']
+    if user.id != token_user_id or user.email != token_email:
+        raise Exception("access denied..who are you?")
+
+
 @api_view(['GET'])
 def recipe_index(request, id):
+
     user = User.objects.get(pk=id)
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     recipe_list = Recipe.objects.filter(user=user)
     serializer = RecipeSerializer(recipe_list, many=True)
     print(serializer.data)
     return Response(serializer.data)
+
 
 @api_view(['POST'])
 def search_recipe(request):
@@ -50,17 +69,15 @@ def search_recipe(request):
 
 @api_view(['get'])
 def search_recipe_view(request, id):
-    print("Spoonacular Recipe ID:", id)
+    # spoonacular recipe id
     apiRecipeId = id
     url = 'https://api.spoonacular.com/recipes/{apiRecipeId}/information?apiKey={API_KEY}&includeNutrition=false'
     url = url.format(apiRecipeId=apiRecipeId, API_KEY=API_KEY)
     response = requests.get(url)
     response = response.json()
-    print(response)
     recipe_title = response['title']
     recipe_image = response['image']
     ingredientArr = list(map(parse_ingredients, response['extendedIngredients'] ))
-    print(ingredientArr)
 
     url = 'https://api.spoonacular.com/recipes/{apiRecipeId}/analyzedInstructions?apiKey={API_KEY}'
     url = url.format(apiRecipeId=apiRecipeId, API_KEY=API_KEY)
@@ -78,7 +95,7 @@ def search_recipe_view(request, id):
         'ingredient_list': ingredientArr,
         'instructions_list': instructionsArr,
     }
-    data=json.dumps(obj)
+    data = json.dumps(obj)
     return Response(data)
 
 
@@ -101,6 +118,13 @@ def parse_instructions(instructions):
 @api_view(['GET'])
 def recipe_show(request, id):
     recipe = Recipe.objects.get(pk=id)
+    user = recipe.user
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     recipe_categories = recipe.categories.all()
     ingredient_list = recipe.ingredients.all()
     instruction_list = recipe.steps.all().order_by('step_number')
@@ -118,6 +142,12 @@ def recipe_show(request, id):
 
 @api_view(['GET'])
 def categories_get(request, user_id):
+    user = User.objects.get(pk=user_id)
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     categories = RecipeCategory.objects.filter(user_id=user_id).order_by('category_name')
     recipe_categories_serializer = RecipeCategorySerializer(categories, many=True)
     obj = {
@@ -141,6 +171,11 @@ def recipe_search_new(request):
         recipe_image = request.data['recipe_image']
 
     user = User.objects.get(pk=user_id)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
 
     recipe_category, created = RecipeCategory.objects.get_or_create(
         category_name=recipe_category, user=user)
@@ -184,6 +219,14 @@ def recipe_search_new(request):
 @api_view(['POST'])
 def recipe_edit(request, id):
     user_id = request.data['user_id']
+    user = User.objects.get(pk=user_id)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
+
     recipe_name = request.data['recipe_name']
     recipe_categories = json.loads(request.data['recipe_categories'])
     instructions_list = json.loads(request.data['instructions_list'])
@@ -240,6 +283,13 @@ def recipe_edit(request, id):
 @api_view(['DELETE'])
 def recipe_delete(request, id):
     recipe = Recipe.objects.get(id=id)
+    user = recipe.user
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     # if a cloudinary image, delete from cloudinary as well.
     _maybe_delete_cloudinary_image(recipe.image)
     recipe.delete()
