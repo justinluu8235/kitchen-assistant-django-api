@@ -1,5 +1,3 @@
-
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework.decorators import api_view
@@ -14,25 +12,16 @@ from dotenv import load_dotenv
 import os
 import cloudinary.api
 from django.conf import settings
-import jwt
+from main_app.auth_helpers import validate_token
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-def validate_token(bearer_token, user: User):
-    if not bearer_token:
-        raise Exception("access denied..who are you?")
-    token = bearer_token.split(' ')[1]  # remove Bearer
-    decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-    token_user_id = decoded['id']
-    token_email = decoded['email']
-    if user.id != token_user_id or user.email != token_email:
-        raise Exception("access denied..who are you?")
 
 
+# get all of a user's recipes
 @api_view(['GET'])
 def recipe_index(request, id):
-
     user = User.objects.get(pk=id)
     try:
         validate_token(request.headers.get("Authorization"), user)
@@ -44,7 +33,7 @@ def recipe_index(request, id):
     print(serializer.data)
     return Response(serializer.data)
 
-
+# search for recipes in the spoonacular API
 @api_view(['POST'])
 def search_recipe(request):
     search_query = request.data['searchVal']
@@ -66,7 +55,7 @@ def search_recipe(request):
     data=json.dumps(obj)
     return Response(data)
 
-
+# get info on one spoonacular recipe
 @api_view(['get'])
 def search_recipe_view(request, id):
     # spoonacular recipe id
@@ -114,7 +103,7 @@ def parse_instructions(instructions):
         }
     return parsed_instructions
 
-
+# show one of a user's recipe
 @api_view(['GET'])
 def recipe_show(request, id):
     recipe = Recipe.objects.get(pk=id)
@@ -140,6 +129,7 @@ def recipe_show(request, id):
     }
     return Response(obj)
 
+# return all categories for a user
 @api_view(['GET'])
 def categories_get(request, user_id):
     user = User.objects.get(pk=user_id)
@@ -156,7 +146,7 @@ def categories_get(request, user_id):
     return Response(obj)
 
 
-
+# create a new recipe for a user based off a spoonacular recipe
 @transaction.atomic
 @api_view(['POST'])
 def recipe_search_new(request):
@@ -214,7 +204,7 @@ def recipe_search_new(request):
     # data=json.dumps(obj)
     return Response(obj)
 
-
+# edit a user's existing recipe
 @transaction.atomic
 @api_view(['POST'])
 def recipe_edit(request, id):
@@ -279,7 +269,7 @@ def recipe_edit(request, id):
     }
     return Response(obj)
 
-
+# delete a user's existing recipe
 @api_view(['DELETE'])
 def recipe_delete(request, id):
     recipe = Recipe.objects.get(id=id)
