@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 import json
 from django.http import QueryDict
+
+from .auth_helpers import validate_token
 from .serializers import UserFriendSerializer
 import jwt
 from datetime import datetime, timedelta
@@ -79,12 +81,16 @@ def signup_view(request):
         print("data incoming: ", request.data)
         return SignupView().sign_up(request)
 
-
+# get a list of all of a user's friends (current and pending)
 @api_view(['GET'])
 def userfriend_index(request, id):
     user_id = id
-    
     user = User.objects.get(pk=id)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
 
     #find current friends
     friend_list = UserFriend.objects.all().filter(user=user, currently_friends=True)
@@ -111,20 +117,18 @@ def userfriend_index(request, id):
     print('response obj', obj)
     return Response(obj)
 
+
 def add_username(request) :
     username = User.objects.get(pk=request['user']).username
     request['username'] = username
     return request
 
 
-
 @api_view(['POST'])
 def userfriend_search(request):
     search_username = request.data['search_username']
     user_id = request.data['user_id']
-
     user = User.objects.get(pk=user_id)
-    print('user' , user)
 
     friend_user = User.objects.all().filter(username=search_username)
     print('user found', friend_user)
@@ -149,13 +153,17 @@ def userfriend_search(request):
     return Response(obj)
 
 
+# add another user as a friend
 @api_view(['POST'])
 def userfriend_add(request):
     friend_username = request.data['friend_username']
     user_id = request.data['user_id']
-
     user = User.objects.get(pk=user_id)
-    print('user' , user)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
 
     friend_user = User.objects.all().filter(username=friend_username)
     print('user found', friend_user)
@@ -180,7 +188,7 @@ def userfriend_add(request):
     print('response obj', obj)
     return Response(obj)
 
-
+# receiver accepts friend request from requestor
 @api_view(['POST'])
 def userfriend_accept(request):
     requester_id = request.data['requester_id']
@@ -188,6 +196,11 @@ def userfriend_accept(request):
 
     requestor = User.objects.get(pk=requester_id)
     receiver = User.objects.get(username=receiver_name)
+
+    try:
+        validate_token(request.headers.get("Authorization"), receiver)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
 
     user_friend = UserFriend.objects.get(user=requestor, friend_name=receiver_name)
     user_friend.currently_friends = True
@@ -208,7 +221,7 @@ def userfriend_accept(request):
     print('response obj', obj)
     return Response(obj)
 
-
+# user unfriends the friend
 @api_view(['POST'])
 def userfriend_unfriend(request):
     friend_id = request.data['friend_id']
@@ -216,8 +229,11 @@ def userfriend_unfriend(request):
 
     friend = User.objects.get(pk=friend_id)
     user = User.objects.get(pk=user_id)
-    print('friend', friend)
-    print('user', user)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
 
     user_friend1 = UserFriend.objects.get(user=user, friend_id=friend_id)
     user_friend2 = UserFriend.objects.get(user=friend, friend_id=user_id)
