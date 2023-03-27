@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
+
+from main_app.auth_helpers import validate_token
 from .models import PantryCategory, PantryItem, ShoppingListItem
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -9,43 +11,44 @@ def index(request):
     template_name = 'shoppinglist/index.html'
     return template_name
 
-
+# get a list of all user's pantry items
 @api_view(['GET'])
 def pantry_index(request, id):
-    print('user id', id)
     user = User.objects.get(pk=id)
-    print('user', user)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     pantry_item_list = PantryItem.objects.filter(user=user).order_by('pantry_category')
-    print('pantry list', pantry_item_list)
     serializer = PantryItemSerializer(pantry_item_list, many=True)
-    print(serializer.data)
     by_category = {}
     for i in range(len(serializer.data)):
         if serializer.data[i]['pantry_category'] in by_category:
             category = serializer.data[i]['pantry_category']
             by_category[category].append(serializer.data[i])
-            print('organized by category', by_category[category])
         else:
             category = serializer.data[i]['pantry_category']
             by_category[category] = []
             by_category[category].append(serializer.data[i])
-            print('organized by category', by_category[category])
-        
+
     # print('organized by category', by_category)
     return Response(by_category)
     
-
+# add a new pantry item for a user
 @api_view(['POST'])
 def pantry_new(request):
     user_id = request.data['user_id']
     item_name = request.data['item_name']
     category_name = request.data['category_name']
 
-    print('user id', user_id)
-    print('item name', item_name)
-
     user = User.objects.get(pk=user_id)
-    print("user:", user)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
 
     pantry_category = PantryCategory.objects.get_or_create(category_name=category_name, user=user)
     print('pantry category', pantry_category)
@@ -63,10 +66,17 @@ def pantry_new(request):
     }
     return Response(obj)
 
-
+# edit a pantry item for a user
 @api_view(['POST'])
 def pantry_edit(request, id):
     pantry_item = PantryItem.objects.get(id=id)
+    user = pantry_item.user
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     pantry_item.in_stock = not pantry_item.in_stock
     pantry_item.save()
 
@@ -79,10 +89,18 @@ def pantry_edit(request, id):
 
     return Response("Item successfully updated")
 
+# delete a pantry item for a user
 @api_view(['DELETE'])
 def pantry_delete(request, id):
     pantry_item = PantryItem.objects.get(id=id)
-    print('pantry_item', pantry_item)
+    user = pantry_item.user
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
+
     pantry_item.delete()
 
     return Response("Item successfully deleted")
@@ -90,9 +108,11 @@ def pantry_delete(request, id):
 
 @api_view(['GET'])
 def shoppinglist_index(request, id):
-    print('user id', id)
     user = User.objects.get(pk=id)
-    print('user', user)
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
     shopping_item_list = ShoppingListItem.objects.filter(user=user)
     print('shopping list', shopping_item_list)
     serializer = ShoppingListItemSerializer(shopping_item_list, many=True)
@@ -106,23 +126,21 @@ def shoppinglist_index(request, id):
 @api_view(['POST'])
 def shoppingitem_new(request):
     user_id = request.data['user_id']
+    user = User.objects.get(user_id)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     item_name = request.data['item_name']
     item_quantity = request.data['item_quantity']
     quantity_unit = request.data['quantity_unit']
 
-    print('ingredient unit before parse', quantity_unit)
     parsed_ingredient_name = item_name.lower()
     parsed_quantity_unit = quantity_unit.lower()
     if(parsed_quantity_unit[-1] == 's'):
         parsed_quantity_unit = parsed_quantity_unit[:-1]
-    print('ingredient unit afetr parse', parsed_quantity_unit)
-
-
-    print('user id', user_id)
-    print('item name', item_name)
-
-    user = User.objects.get(pk=user_id)
-    print("user:", user)
 
     shopping_item = ShoppingListItem.objects.create(item_name=parsed_ingredient_name, user = user,ingredient_quantity=item_quantity, quantity_unit=parsed_quantity_unit)
     shopping_item.save()
@@ -131,14 +149,18 @@ def shoppingitem_new(request):
     obj={
         'shopping_item': shopping_item_serializer.data,
     }
-    print('response obj', obj)
     return Response(obj)
 
 
 @api_view(['DELETE'])
 def shoppingitem_delete(request, id):
     shopping_item = ShoppingListItem.objects.get(id=id)
-    print('shopping item', shopping_item)
+    user = shopping_item.user
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     shopping_item.delete()
 
     return Response("Item successfully deleted")
@@ -152,14 +174,16 @@ def shoppinglist_generate(request):
     user_id = request.data['user_id']
     recipe_id = request.data['recipe_id']
 
+
     user = User.objects.get(pk=user_id)
-    print('user', user)
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
 
     recipe = Recipe.objects.get(pk=recipe_id)
-    print('recipe', recipe)
 
     ingredient_list = recipe.ingredients.all()
-    print('ingredient list', ingredient_list)
 
     pantry_object_list = PantryItem.objects.all().filter(user=user)
     pantry_item_list = list(map(lambda pantry_object: pantry_object.item_name,pantry_object_list))
