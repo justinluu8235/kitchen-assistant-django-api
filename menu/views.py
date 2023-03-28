@@ -77,7 +77,7 @@ def menu_new(request):
 @api_view(['DELETE'])
 def menu_delete(request, id):
     menu_item = MenuItem.objects.get(id=id)
-    user = MenuItem.user
+    user = menu_item.user
 
     try:
         validate_token(request.headers.get("Authorization"), user)
