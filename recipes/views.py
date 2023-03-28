@@ -1,5 +1,3 @@
-
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework.decorators import api_view
@@ -14,19 +12,29 @@ from dotenv import load_dotenv
 import os
 import cloudinary.api
 from django.conf import settings
+from main_app.auth_helpers import validate_token
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
+
+
+# get all of a user's recipes
 @api_view(['GET'])
 def recipe_index(request, id):
     print(f'HEADERS ==== {request.headers}')
     user = User.objects.get(pk=id)
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     recipe_list = Recipe.objects.filter(user=user)
     serializer = RecipeSerializer(recipe_list, many=True)
     print(serializer.data)
     return Response(serializer.data)
 
+# search for recipes in the spoonacular API
 @api_view(['POST'])
 def search_recipe(request):
     search_query = request.data['searchVal']
@@ -48,20 +56,18 @@ def search_recipe(request):
     data=json.dumps(obj)
     return Response(data)
 
-
+# get info on one spoonacular recipe
 @api_view(['get'])
 def search_recipe_view(request, id):
-    print("Spoonacular Recipe ID:", id)
+    # spoonacular recipe id
     apiRecipeId = id
     url = 'https://api.spoonacular.com/recipes/{apiRecipeId}/information?apiKey={API_KEY}&includeNutrition=false'
     url = url.format(apiRecipeId=apiRecipeId, API_KEY=API_KEY)
     response = requests.get(url)
     response = response.json()
-    print(response)
     recipe_title = response['title']
     recipe_image = response['image']
     ingredientArr = list(map(parse_ingredients, response['extendedIngredients'] ))
-    print(ingredientArr)
 
     url = 'https://api.spoonacular.com/recipes/{apiRecipeId}/analyzedInstructions?apiKey={API_KEY}'
     url = url.format(apiRecipeId=apiRecipeId, API_KEY=API_KEY)
@@ -79,7 +85,7 @@ def search_recipe_view(request, id):
         'ingredient_list': ingredientArr,
         'instructions_list': instructionsArr,
     }
-    data=json.dumps(obj)
+    data = json.dumps(obj)
     return Response(data)
 
 
@@ -98,10 +104,17 @@ def parse_instructions(instructions):
         }
     return parsed_instructions
 
-
+# show one of a user's recipe
 @api_view(['GET'])
 def recipe_show(request, id):
     recipe = Recipe.objects.get(pk=id)
+    user = recipe.user
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     recipe_categories = recipe.categories.all()
     ingredient_list = recipe.ingredients.all()
     instruction_list = recipe.steps.all().order_by('step_number')
@@ -117,8 +130,15 @@ def recipe_show(request, id):
     }
     return Response(obj)
 
+# return all categories for a user
 @api_view(['GET'])
 def categories_get(request, user_id):
+    user = User.objects.get(pk=user_id)
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     categories = RecipeCategory.objects.filter(user_id=user_id).order_by('category_name')
     recipe_categories_serializer = RecipeCategorySerializer(categories, many=True)
     obj = {
@@ -127,7 +147,7 @@ def categories_get(request, user_id):
     return Response(obj)
 
 
-
+# create a new recipe for a user based off a spoonacular recipe
 @transaction.atomic
 @api_view(['POST'])
 def recipe_search_new(request):
@@ -142,6 +162,11 @@ def recipe_search_new(request):
         recipe_image = request.data['recipe_image']
 
     user = User.objects.get(pk=user_id)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
 
     recipe_category, created = RecipeCategory.objects.get_or_create(
         category_name=recipe_category, user=user)
@@ -180,11 +205,19 @@ def recipe_search_new(request):
     # data=json.dumps(obj)
     return Response(obj)
 
-
+# edit a user's existing recipe
 @transaction.atomic
 @api_view(['POST'])
 def recipe_edit(request, id):
     user_id = request.data['user_id']
+    user = User.objects.get(pk=user_id)
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
+
     recipe_name = request.data['recipe_name']
     recipe_categories = json.loads(request.data['recipe_categories'])
     instructions_list = json.loads(request.data['instructions_list'])
@@ -237,10 +270,17 @@ def recipe_edit(request, id):
     }
     return Response(obj)
 
-
+# delete a user's existing recipe
 @api_view(['DELETE'])
 def recipe_delete(request, id):
     recipe = Recipe.objects.get(id=id)
+    user = recipe.user
+
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
     # if a cloudinary image, delete from cloudinary as well.
     _maybe_delete_cloudinary_image(recipe.image)
     recipe.delete()
