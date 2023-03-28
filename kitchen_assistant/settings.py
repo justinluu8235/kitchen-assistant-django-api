@@ -39,7 +39,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com',
                  'django-env.eba-p3pw5qpb.us-west-2.elasticbeanstalk.com',
-                 'awseb-awseb-193yb98ymqm32-736766466.us-west-2.elb.amazonaws.com']
+                 'awseb-awseb-193yb98ymqm32-736766466.us-west-2.elb.amazonaws.com',
+                 '172.31.11.35' # eb monitoring
+                 ]
 if ADDITIONAL_ALLOWED_HOST:
     ALLOWED_HOSTS.append(ADDITIONAL_ALLOWED_HOST)
 
