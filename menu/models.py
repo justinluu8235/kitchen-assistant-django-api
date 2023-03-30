@@ -9,3 +9,4 @@ class MenuItem(models.Model):
     recipe = models.ForeignKey('recipes.Recipe', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     requester_username = models.CharField(max_length=100)
+    meal_name = models.CharField(max_length=50, null=True, blank=True)
