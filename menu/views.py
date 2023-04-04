@@ -27,9 +27,7 @@ def menu_index(request, id):
         recipeId = serializer.data[i]['recipe']
         recipe = Recipe.objects.get(pk=recipeId)
         serializer.data[i]['recipe_name'] = recipe.recipe_name
-        print("recipe name", recipe.recipe_name)
-        print("recipe image", recipe.image)
-        print('weekday', type(serializer.data[i]['cook_date']))
+
         serializer.data[i]['image'] = str(recipe.image)
         if serializer.data[i]['cook_date'] in by_date:
             cook_date = serializer.data[i]['cook_date']
@@ -49,6 +47,8 @@ def menu_new(request):
     cook_date = request.data['cook_date']
     recipe_id = request.data['recipe_id']
     requester_username = request.data['requester_username']
+    meal_name = request.data.get("meal_name", "unknown")
+    note = request.data.get("note", "")
     requester = User.objects.get(username=requester_username)
 
     try:
@@ -59,12 +59,10 @@ def menu_new(request):
     recipe_owner = User.objects.get(pk=recipe_owner_id)
 
     recipe = Recipe.objects.get(pk=recipe_id)
-    print('recipe', recipe)
 
     menu_item = MenuItem.objects.create(cook_date=cook_date, recipe=recipe, 
-                            user=recipe_owner, requester_username=requester_username)
-
-    menu_item.save()
+                            user=recipe_owner, requester_username=requester_username,
+                                        meal_name=meal_name, note=note)
 
     menu_item_serializer = MenuItemSerializer(menu_item, many=False)
     recipe_serializer = RecipeSerializer(recipe, many=False)
