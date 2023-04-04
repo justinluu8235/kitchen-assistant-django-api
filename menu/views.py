@@ -18,7 +18,7 @@ DAY_NAMES = ("", "monday", "tuesday", "wednesday", "thursday", "friday", "saturd
 @api_view(['GET'])
 def menu_index(request, id):
     user = User.objects.get(pk=id)
-
+    print(f'menu request == = {request}')
     try:
         validate_token(request.headers.get("Authorization"), user)
     except Exception as e:
