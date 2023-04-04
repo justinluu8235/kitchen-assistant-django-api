@@ -1,7 +1,5 @@
 from datetime import date, datetime, timedelta
 
-from django.db.models import Q
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 
 from recipes.serializers import RecipeSerializer
@@ -27,11 +25,13 @@ def menu_index(request, id):
         return Response(data={"error": "access denied..who are you?"}, status=400)
 
     # Get the date for the first day of the current week (Monday)
-    today = datetime.today()
-    monday = today - timedelta(days=today.weekday())
-    monday = monday.replace(hour=0, minute=0, second=0, microsecond=0)
+    # today = datetime.today()
+    # monday = today - timedelta(days=today.weekday())
+    # monday = monday.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    menu_list = MenuItem.objects.filter(user=user, cook_date__gte=monday.date()).order_by("cook_date")
+    # menu_list = MenuItem.objects.filter(user=user, cook_date__gte=monday.date()).order_by("cook_date")
+    menu_list = MenuItem.objects.filter(user=user).order_by("cook_date")
+
     serializer = MenuItemSerializer(menu_list, many=True)
     # key will be the start of the week date.
     # val will be a dict with the week_end_date, day_of_week:[recipes]
