@@ -162,8 +162,8 @@ def menu_delete(request, id):
         cook_date = menu_item.cook_date
         year, week_num, day_of_week = cook_date.isocalendar()
         day = DAY_NAMES[day_of_week]
-        first_date_of_week = str(date.fromisocalendar(year, week_num, 1))
-        last_date_of_week = str(date.fromisocalendar(year, week_num, 7))
+        first_date_of_week = str(get_date_from_iso(year, week_num, 0))
+        last_date_of_week = str(get_date_from_iso(year, week_num, 6))
         if menu_dict.get(first_date_of_week):
             if menu_dict[first_date_of_week].get(day):
                 menu_dict[first_date_of_week][day].append(serializer.data[i])
