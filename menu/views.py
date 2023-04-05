@@ -62,26 +62,29 @@ def menu_index(request, id):
     # key will be the start of the week date.
     # val will be a dict with the week_end_date, day_of_week:[recipes]
     menu_dict = {}
-    for i, menu_item in enumerate(menu_list):
-        recipe = menu_item.recipe
-        serializer.data[i]['recipe_name'] = recipe.recipe_name
-        serializer.data[i]['image'] = str(recipe.image)
+    try:
+        for i, menu_item in enumerate(menu_list):
+            recipe = menu_item.recipe
+            serializer.data[i]['recipe_name'] = recipe.recipe_name
+            serializer.data[i]['image'] = str(recipe.image)
 
-        cook_date = menu_item.cook_date
-        year, week_num, day_of_week = cook_date.isocalendar()
-        day = DAY_NAMES[day_of_week]
-        first_date_of_week = str(date.fromisocalendar(year, week_num, 1))
-        last_date_of_week = str(date.fromisocalendar(year, week_num, 7))
-        if menu_dict.get(first_date_of_week):
-            if menu_dict[first_date_of_week].get(day):
-                menu_dict[first_date_of_week][day].append(serializer.data[i])
+            cook_date = menu_item.cook_date
+            year, week_num, day_of_week = cook_date.isocalendar()
+            day = DAY_NAMES[day_of_week]
+            first_date_of_week = str(date.fromisocalendar(year, week_num, 1))
+            last_date_of_week = str(date.fromisocalendar(year, week_num, 7))
+            if menu_dict.get(first_date_of_week):
+                if menu_dict[first_date_of_week].get(day):
+                    menu_dict[first_date_of_week][day].append(serializer.data[i])
+                else:
+                    menu_dict[first_date_of_week][day] = [serializer.data[i]]
             else:
-                menu_dict[first_date_of_week][day] = [serializer.data[i]]
-        else:
-            menu_dict[first_date_of_week] = {
-                "week_end_date": last_date_of_week,
-                f"{day}": [serializer.data[i]],
-            }
+                menu_dict[first_date_of_week] = {
+                    "week_end_date": last_date_of_week,
+                    f"{day}": [serializer.data[i]],
+                }
+    except Exception as e:
+        print(f"Error building menu dict: {e}")
     return Response(menu_dict)
 
 
