@@ -14,6 +14,32 @@ from main_app.auth_helpers import validate_token
 DAY_NAMES = ("", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 
 
+@api_view(['GET'])
+def menu_old_index(request, id):
+    user = User.objects.get(pk=id)
+    try:
+        validate_token(request.headers.get("Authorization"), user)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
+    menu_list = MenuItem.objects.filter(user=user)
+    serializer = MenuItemSerializer(menu_list, many=True)
+    by_date = {}
+    for i in range(len(serializer.data)):
+        recipeId = serializer.data[i]['recipe']
+        recipe = Recipe.objects.get(pk=recipeId)
+        serializer.data[i]['recipe_name'] = recipe.recipe_name
+
+        serializer.data[i]['image'] = str(recipe.image)
+        if serializer.data[i]['cook_date'] in by_date:
+            cook_date = serializer.data[i]['cook_date']
+            by_date[cook_date].append(serializer.data[i])
+        else:
+            cook_date = serializer.data[i]['cook_date']
+            by_date[cook_date] = []
+            by_date[cook_date].append(serializer.data[i])
+
+    return Response(by_date)
 
 @api_view(['GET'])
 def menu_index(request, id):
