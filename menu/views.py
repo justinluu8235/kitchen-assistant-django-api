@@ -13,6 +13,18 @@ from main_app.auth_helpers import validate_token
 # order matters
 DAY_NAMES = ("", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 
+def get_date_from_iso(year, week_num, day_num):
+    # Calculate the date of the first day of the ISO week
+    jan_4th = date(year, 1, 4) # January 4th is always in the first ISO week
+    jan_4th_day_num = jan_4th.weekday() # Get the day of the week (0-6, where Monday is 0)
+    first_day_of_iso_week = jan_4th - timedelta(days=jan_4th_day_num - 1)
+
+    # Calculate the date of the desired day within the ISO week
+    delta = timedelta(weeks=week_num-1, days=day_num-1) # Subtract 1 from week_num and day_num to account for 0-based indexing
+    date_from_iso = first_day_of_iso_week + delta
+
+    return date_from_iso
+
 
 @api_view(['GET'])
 def menu_old_index(request, id):
@@ -71,8 +83,8 @@ def menu_index(request, id):
             cook_date = menu_item.cook_date
             year, week_num, day_of_week = cook_date.isocalendar()
             day = DAY_NAMES[day_of_week]
-            first_date_of_week = str(date.fromisocalendar(year, week_num, 1))
-            last_date_of_week = str(date.fromisocalendar(year, week_num, 7))
+            first_date_of_week = str(get_date_from_iso(year, week_num, 0))
+            last_date_of_week = str(get_date_from_iso(year, week_num, 6))
             if menu_dict.get(first_date_of_week):
                 if menu_dict[first_date_of_week].get(day):
                     menu_dict[first_date_of_week][day].append(serializer.data[i])
