@@ -22,10 +22,9 @@ API_KEY = os.getenv("API_KEY")
 # get all of a user's recipes
 @api_view(['GET'])
 def recipe_index(request, id):
-    print(f'HEADERS ==== {request.headers}')
     user = User.objects.get(pk=id)
     try:
-        validate_token(request.headers.get("Authorization"), user)
+        validate_token(request.headers.get("Authorization"), user, friend_access=True)
     except Exception as e:
         return Response(data={"error": "access denied..who are you?"}, status=400)
 
@@ -108,10 +107,10 @@ def parse_instructions(instructions):
 @api_view(['GET'])
 def recipe_show(request, id):
     recipe = Recipe.objects.get(pk=id)
-    user = recipe.user
+    recipe_owner = recipe.user
 
     try:
-        validate_token(request.headers.get("Authorization"), user)
+        validate_token(request.headers.get("Authorization"), recipe_owner, friend_access=True)
     except Exception as e:
         return Response(data={"error": "access denied..who are you?"}, status=400)
 
@@ -135,7 +134,7 @@ def recipe_show(request, id):
 def categories_get(request, user_id):
     user = User.objects.get(pk=user_id)
     try:
-        validate_token(request.headers.get("Authorization"), user)
+        validate_token(request.headers.get("Authorization"), user, friend_access=True)
     except Exception as e:
         return Response(data={"error": "access denied..who are you?"}, status=400)
 
