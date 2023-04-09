@@ -51,11 +51,9 @@ def pantry_new(request):
         return Response(data={"error": "access denied..who are you?"}, status=400)
 
     pantry_category = PantryCategory.objects.get_or_create(category_name=category_name, user=user)
-    print('pantry category', pantry_category)
     pantry_category[0].save()
 
     new_pantry_item = PantryItem.objects.create(item_name=item_name, user = user, pantry_category=pantry_category[0], in_stock=True)
-    print('pantry item created', new_pantry_item)
     new_pantry_item.save()
 
     pantry_item_serializer = PantryItemSerializer(new_pantry_item , many=False)
@@ -114,12 +112,10 @@ def shoppinglist_index(request, id):
     except Exception as e:
         return Response(data={"error": "access denied..who are you?"}, status=400)
     shopping_item_list = ShoppingListItem.objects.filter(user=user)
-    print('shopping list', shopping_item_list)
     serializer = ShoppingListItemSerializer(shopping_item_list, many=True)
     obj={
         'shopping_list': serializer.data,
     }
-    print('response obj', obj)
     return Response(obj)
 
 
