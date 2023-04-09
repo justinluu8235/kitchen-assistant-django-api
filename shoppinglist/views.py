@@ -126,7 +126,7 @@ def shoppinglist_index(request, id):
 @api_view(['POST'])
 def shoppingitem_new(request):
     user_id = request.data['user_id']
-    user = User.objects.get(user_id)
+    user = User.objects.get(pk=user_id)
 
     try:
         validate_token(request.headers.get("Authorization"), user)
@@ -146,7 +146,7 @@ def shoppingitem_new(request):
     shopping_item.save()
 
     shopping_item_serializer = ShoppingListItemSerializer(shopping_item, many=False)
-    obj={
+    obj = {
         'shopping_item': shopping_item_serializer.data,
     }
     return Response(obj)
