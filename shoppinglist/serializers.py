@@ -7,10 +7,15 @@ class PantryCategorySerializer (serializers.ModelSerializer):
         model = PantryCategory
         fields = '__all__'
 
-class PantryItemSerializer (serializers.ModelSerializer):
-    class Meta: 
+class PantryItemSerializer(serializers.ModelSerializer):
+    pantry_category = serializers.SerializerMethodField()
+
+    class Meta:
         model = PantryItem
-        fields = '__all__'
+        fields = ('id', 'item_name', 'in_stock', 'pantry_category', 'user')
+
+    def get_pantry_category(self, obj):
+        return obj.pantry_category.category_name
 
 class ShoppingListItemSerializer (serializers.ModelSerializer):
     class Meta: 
