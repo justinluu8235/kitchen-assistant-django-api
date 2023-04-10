@@ -25,13 +25,14 @@ def pantry_index(request, id):
     serializer = PantryItemSerializer(pantry_item_list, many=True)
     by_category = {}
     for i in range(len(serializer.data)):
-        if serializer.data[i]['pantry_category'] in by_category:
+        if serializer.data[i]['pantry_category'] and serializer.data[i]['pantry_category'] in by_category:
             category = serializer.data[i]['pantry_category']
             by_category[category].append(serializer.data[i])
         else:
             category = serializer.data[i]['pantry_category']
-            by_category[category] = []
-            by_category[category].append(serializer.data[i])
+            if category:
+                by_category[category] = []
+                by_category[category].append(serializer.data[i])
 
     # print('organized by category', by_category)
     return Response(by_category)

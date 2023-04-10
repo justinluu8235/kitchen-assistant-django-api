@@ -15,7 +15,9 @@ class PantryItemSerializer(serializers.ModelSerializer):
         fields = ('id', 'item_name', 'in_stock', 'pantry_category', 'user')
 
     def get_pantry_category(self, obj):
-        return obj.pantry_category.category_name
+        if obj.pantry_category:
+            return obj.pantry_category.category_name
+        return None
 
 class ShoppingListItemSerializer (serializers.ModelSerializer):
     class Meta: 

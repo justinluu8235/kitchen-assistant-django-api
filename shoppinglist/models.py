@@ -9,6 +9,11 @@ class PantryCategory(models.Model):
     def __str__(self):
         return self.category_name
 
+    def delete(self, *args, **kwargs):
+        # custom behavior before delete
+        self.pantryitem_set.all().delete()
+        super().delete(*args, **kwargs)
+
 class PantryItem(models.Model):
     item_name =  models.CharField(max_length=50)
     in_stock = models.BooleanField(default=False)
