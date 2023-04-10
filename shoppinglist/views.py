@@ -112,9 +112,9 @@ def shoppinglist_index(request, id):
         validate_token(request.headers.get("Authorization"), user)
     except Exception as e:
         return Response(data={"error": "access denied..who are you?"}, status=400)
-    shopping_item_list = ShoppingListItem.objects.filter(user=user)
+    shopping_item_list = ShoppingListItem.objects.filter(user=user).order_by("item_name")
     serializer = ShoppingListItemSerializer(shopping_item_list, many=True)
-    obj={
+    obj = {
         'shopping_list': serializer.data,
     }
     return Response(obj)
@@ -136,10 +136,13 @@ def shoppingitem_new(request):
 
     parsed_ingredient_name = item_name.lower()
     parsed_quantity_unit = quantity_unit.lower()
-    if(parsed_quantity_unit[-1] == 's'):
-        parsed_quantity_unit = parsed_quantity_unit[:-1]
 
-    shopping_item = ShoppingListItem.objects.create(item_name=parsed_ingredient_name, user = user,ingredient_quantity=item_quantity, quantity_unit=parsed_quantity_unit)
+    shopping_item = ShoppingListItem.objects.create(
+        item_name=parsed_ingredient_name,
+        user=user,
+        ingredient_quantity=item_quantity,
+        quantity_unit=parsed_quantity_unit
+    )
     shopping_item.save()
 
     shopping_item_serializer = ShoppingListItemSerializer(shopping_item, many=False)
