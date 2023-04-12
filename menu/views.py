@@ -130,6 +130,66 @@ def menu_new(request):
     }
     return Response(obj)
 
+@api_view(['POST'])
+def menu_update(request, id):
+    menu_item_id = id
+    updated_note = request.data["menu_updated_note"]
+    updated_meal_name = request.data["updated_meal_name"]
+    updated_date = request.data["updated_date"]
+
+    menu_item = MenuItem.objects.get(pk=menu_item_id)
+    owner = menu_item.user
+
+    try:
+        validate_token(request.headers.get("Authorization"), owner)
+    except Exception as e:
+        return Response(data={"error": "access denied..who are you?"}, status=400)
+
+    menu_item.note = updated_note
+    menu_item.cook_date = updated_date
+    menu_item.meal_name = updated_meal_name
+    menu_item.save()
+
+    # Get the date for today
+    today = datetime.today()
+    today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    menu_list = MenuItem.objects.filter(user=menu_item.user, cook_date__gte=today.date()).order_by("cook_date")
+
+    serializer = MenuItemSerializer(menu_list, many=True)
+    # key will be the start of the week date.
+    # val will be a dict with the week_end_date, day_of_week:[recipes]
+    menu_dict = {}
+    try:
+        for i, menu_item in enumerate(menu_list):
+            recipe = menu_item.recipe
+            serializer.data[i]['recipe_name'] = recipe.recipe_name
+            serializer.data[i]['image'] = str(recipe.image)
+
+            cook_date = menu_item.cook_date
+            year, week_num, day_of_week = cook_date.isocalendar()
+            day = DAY_NAMES[day_of_week]
+            first_date_of_week = str(get_date_from_iso(year, week_num, 0))
+            last_date_of_week = str(get_date_from_iso(year, week_num, 6))
+            if menu_dict.get(first_date_of_week):
+                if menu_dict[first_date_of_week].get(day):
+                    menu_dict[first_date_of_week][day].append(serializer.data[i])
+                else:
+                    menu_dict[first_date_of_week][day] = [serializer.data[i]]
+            else:
+                menu_dict[first_date_of_week] = {
+                    "week_end_date": last_date_of_week,
+                    f"{day}": [serializer.data[i]],
+                }
+    except Exception as e:
+        print(f"Error building menu dict: {e}")
+
+    return Response({'updated_menu_data': menu_dict})
+
+
+
+
+
 @api_view(['DELETE'])
 def menu_delete(request, id):
     menu_item = MenuItem.objects.get(id=id)
