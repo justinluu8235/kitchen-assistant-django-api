@@ -35,7 +35,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = ENV_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['kitchen-assistantv2-backend.herokuapp.com',
                  'django-env.eba-p3pw5qpb.us-west-2.elasticbeanstalk.com',
