@@ -33,7 +33,7 @@ def get_name(request, id):
 
 @api_view(['GET'])
 def eb_view(request):
-    return Response('hello', status=200)
+    return Response('hello1', status=200)
 
 @api_view(['POST'])
 def login_view(request):
