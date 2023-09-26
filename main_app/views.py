@@ -54,7 +54,7 @@ def login_view(request):
                     login(request, user) # log the user in by creating a session
                     
                     token=jwt.encode({'id': user.id, 'username': user.username, 'email': user.email, 'password': user.password,
-                            'exp': datetime.utcnow() + timedelta(hours=3)},
+                            'exp': datetime.utcnow() + timedelta(weeks=2)},
                             settings.SECRET_KEY, algorithm='HS256')
                     user_info = {
                         'userData':
